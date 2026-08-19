@@ -1,0 +1,64 @@
+{
+  "source": "/Users/tempestwang/workspace/accounting/Bookkeeping/Theme/ThemePreview.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "¥12,680.00",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 48
+        }
+      },
+      {
+        "comment": "",
+        "key": "8月账单",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 36
+        }
+      },
+      {
+        "comment": "",
+        "key": "+6.2%",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 39
+        }
+      },
+      {
+        "comment": "",
+        "key": "收入 ¥15,300",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 53
+        }
+      },
+      {
+        "comment": "",
+        "key": "支出 ¥2,620",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 54
+        }
+      },
+      {
+        "comment": "",
+        "key": "管理",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 56
+        }
+      },
+      {
+        "comment": "",
+        "key": "已应用",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 232
+        }
+      }
+    ]
+  },
+  "version": 1
+}

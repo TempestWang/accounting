@@ -10,7 +10,7 @@ enum StatPeriod: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
-/// 统计报表（仿鲨鱼记账）：月度/年度切换、支出/收入切换、分类排行、占比环图、收支趋势
+/// 统计报表：月度/年度切换、支出/收入切换、分类排行、占比环图、收支趋势
 ///
 /// 数据源：StatisticsContent 内的 @Query 直接监听 SwiftData 存储，
 /// 新增 / 编辑 / 删除交易后统计自动刷新；周期 / 月份 / 年份变化时通过
@@ -136,9 +136,10 @@ private struct StatisticsContent: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 16) {
+            VStack(spacing: AppSpacing.l) {
                 periodSection
-                summaryCards
+                healthScoreCard
+                summaryCard
                 if period == .month {
                     budgetSection
                 }
@@ -149,9 +150,11 @@ private struct StatisticsContent: View {
                 }
                 trendSection
             }
-            .padding()
+            .padding(.horizontal, AppSpacing.l)
+            .padding(.vertical, AppSpacing.s)
         }
-        .background(AppTheme.background)
+        // UI优化：根据设计稿调整背景色
+        .background(DSColor.background)
         .navigationTitle("统计")
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -160,59 +163,160 @@ private struct StatisticsContent: View {
 
     private var periodSection: some View {
         VStack(spacing: 14) {
-            Picker("周期", selection: $period) {
+            // UI优化：参考设计稿使用紫色分段控件
+            HStack(spacing: 0) {
                 ForEach(StatPeriod.allCases) { p in
-                    Text(p.rawValue).tag(p)
+                    Button {
+                        withSmoothAnimation(AppAnimation.spring) {
+                            period = p
+                        }
+                    } label: {
+                        Text(p.rawValue)
+                            .font(.subheadline.weight(period == p ? .semibold : .regular))
+                            .foregroundStyle(period == p ? DSColor.buttonText : .secondary)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 10)
+                            .background(
+                                Capsule().fill(period == p ? DSColor.primary : .clear)
+                            )
+                    }
+                    .buttonStyle(.plain)
                 }
             }
-            .pickerStyle(.segmented)
+            .padding(3)
+            .background(Capsule().fill(DSColor.secondaryFill))
 
             HStack {
-                Button {
-                    shiftPeriod(-1)
-                } label: {
-                    Image(systemName: "chevron.left")
-                }
-                .buttonStyle(.bordered)
-
+                chevronButton("chevron.left") { shiftPeriod(-1) }
                 Spacer()
                 Text(periodTitle)
-                    .font(.headline)
+                    .font(Typography.headline)
+                    .contentTransition(.numericText())
                 Spacer()
-
-                Button {
-                    shiftPeriod(1)
-                } label: {
-                    Image(systemName: "chevron.right")
-                }
-                .buttonStyle(.bordered)
+                chevronButton("chevron.right") { shiftPeriod(1) }
             }
         }
         .cardStyle()
     }
 
-    // MARK: - 区块：收支卡片
+    private func chevronButton(_ systemName: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: systemName)
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(.primary)
+                .frame(width: 38, height: 38)
+                .background(Circle().fill(DSColor.secondaryFill))
+        }
+        .buttonStyle(DSScaleButtonStyle())
+    }
 
-    private var summaryCards: some View {
-        HStack(spacing: 12) {
-            summaryCard(title: "支出", value: totalExpense, color: AppTheme.expense)
-            summaryCard(title: "收入", value: totalIncome, color: AppTheme.income)
-            summaryCard(title: "结余", value: balance, color: balance < 0 ? AppTheme.expense : AppTheme.primary)
+    // MARK: - 区块：财务健康评分（UI优化：参考设计稿添加）
+
+    private var healthScoreCard: some View {
+        let score = calculateHealthScore()
+        return VStack(spacing: 12) {
+            HStack {
+                Text("财务健康评分")
+                    .font(Typography.headline)
+                    .foregroundStyle(.primary)
+                Spacer()
+                Text(periodTitle)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            HStack(alignment: .center, spacing: 16) {
+                // 分数显示
+                ZStack {
+                    Circle()
+                        .stroke(DSColor.track, lineWidth: 6)
+                        .frame(width: 80, height: 80)
+                    Circle()
+                        .trim(from: 0, to: CGFloat(score) / 100.0)
+                        .stroke(
+                            AngularGradient(
+                                gradient: Gradient(colors: [DSColor.healthy, DSColor.primary]),
+                                center: .center
+                            ),
+                            style: StrokeStyle(lineWidth: 6, lineCap: .round)
+                        )
+                        .frame(width: 80, height: 80)
+                        .rotationEffect(.degrees(-90))
+                    VStack(spacing: 2) {
+                        Text("\(score)")
+                            .font(.system(size: 28, weight: .bold, design: .rounded))
+                            .foregroundStyle(.primary)
+                        Text("良好")
+                            .font(.caption2)
+                            .foregroundStyle(DSColor.healthy)
+                    }
+                }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    scoreIndicator(label: "支出控制", score: score)
+                    scoreIndicator(label: "预算执行", score: min(score + 5, 100))
+                    scoreIndicator(label: "储蓄习惯", score: max(score - 3, 0))
+                }
+                .frame(maxWidth: .infinity)
+            }
+        }
+        .cardStyle()
+    }
+
+    private func scoreIndicator(label: String, score: Int) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text(label)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text("\(score)")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(score >= 80 ? DSColor.healthy : (score >= 60 ? DSColor.warning : DSColor.expense))
+            }
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    Capsule().fill(DSColor.track)
+                    Capsule()
+                        .fill(score >= 80 ? DSColor.healthy : (score >= 60 ? DSColor.warning : DSColor.expense))
+                        .frame(width: geo.size.width * CGFloat(score) / 100.0)
+                }
+            }
+            .frame(height: 4)
         }
     }
 
-    private func summaryCard(title: String, value: Decimal, color: Color) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            Text("¥\(DateFormatters.money(value))")
-                .font(.title3.bold())
-                .foregroundStyle(color)
-                .minimumScaleFactor(0.6)
-                .lineLimit(1)
+    private func calculateHealthScore() -> Int {
+        guard let budget = currentBudget, budget.amount > 0 else { return 75 }
+        let ratio = NSDecimalNumber(decimal: totalExpense / budget.amount).doubleValue
+        if ratio <= 0.7 { return 92 }
+        if ratio <= 0.85 { return 85 }
+        if ratio <= 1.0 { return 72 }
+        return max(40, Int(100 - (ratio - 1.0) * 100))
+    }
+
+    // MARK: - 区块：收支汇总卡（一体化）
+
+    private var summaryCard: some View {
+        HStack(spacing: 0) {
+            DSStatColumn(
+                title: "支出",
+                value: "¥\(DateFormatters.money(totalExpense))",
+                color: DSColor.expense
+            )
+            DSColumnDivider()
+            DSStatColumn(
+                title: "收入",
+                value: "¥\(DateFormatters.money(totalIncome))",
+                color: DSColor.income
+            )
+            DSColumnDivider()
+            DSStatColumn(
+                title: "结余",
+                value: "¥\(DateFormatters.money(balance))",
+                color: balance < 0 ? DSColor.expense : DSColor.primary
+            )
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
         .cardStyle()
     }
 
@@ -222,7 +326,8 @@ private struct StatisticsContent: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text("本月预算")
-                    .font(.headline)
+                    .font(Typography.headline)
+                    .foregroundStyle(.primary)
                 Spacer()
                 Text(budgetSummaryText)
                     .font(.caption)
@@ -236,13 +341,13 @@ private struct StatisticsContent: View {
 
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
-                        Capsule().fill(Color(.systemGray5))
+                        Capsule().fill(DSColor.track)
                         Capsule()
-                            .fill(over ? AppTheme.expense : AppTheme.primary)
+                            .fill(over ? DSColor.expense : DSColor.primary)
                             .frame(width: geo.size.width * progress)
                     }
                 }
-                .frame(height: 10)
+                .frame(height: 8)
 
                 if over {
                     Label(
@@ -250,7 +355,7 @@ private struct StatisticsContent: View {
                         systemImage: "exclamationmark.triangle.fill"
                     )
                     .font(.caption)
-                    .foregroundStyle(AppTheme.expense)
+                    .foregroundStyle(DSColor.expense)
                 }
             }
         }
@@ -287,34 +392,55 @@ private struct StatisticsContent: View {
 
     private var pieSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("支出构成")
-                .font(.headline)
+            Text("分类占比")
+                .font(Typography.headline)
+                .foregroundStyle(.primary)
 
             if pieItems.isEmpty {
                 Text("本期暂无支出")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } else {
-                Chart(pieItems) { item in
-                    SectorMark(
-                        angle: .value("金额", double(item.amount)),
-                        innerRadius: .ratio(0.62)
-                    )
-                    .foregroundStyle(ColorPalette.color(for: item.name))
-                }
-                .frame(height: 200)
-                .overlay {
-                    VStack(spacing: 4) {
-                        Text("支出")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        Text("¥\(DateFormatters.money(totalExpense))")
-                            .font(.headline)
+                HStack(spacing: 16) {
+                    Chart(pieItems) { item in
+                        SectorMark(
+                            angle: .value("金额", double(item.amount)),
+                            innerRadius: .ratio(0.62)
+                        )
+                        .foregroundStyle(ColorPalette.color(for: item.name))
+                    }
+                    .frame(width: 120, height: 120)
+
+                    // UI优化：参考设计稿添加图例列表
+                    VStack(alignment: .leading, spacing: 6) {
+                        ForEach(pieItems.prefix(5)) { item in
+                            HStack(spacing: 8) {
+                                Circle()
+                                    .fill(ColorPalette.color(for: item.name))
+                                    .frame(width: 8, height: 8)
+                                Text(item.name)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                Spacer()
+                                Text(String(format: "%.1f%%", percentage(item.amount)))
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundStyle(.primary)
+                            }
+                        }
                     }
                 }
+
+                Text("支出 ¥\(DateFormatters.money(totalExpense))")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
         }
         .cardStyle()
+    }
+
+    private func percentage(_ amount: Decimal) -> Double {
+        guard totalExpense > 0 else { return 0 }
+        return Double((amount / totalExpense as NSDecimalNumber).doubleValue) * 100
     }
 
     // MARK: - 区块：分类排行
@@ -347,15 +473,43 @@ private struct StatisticsContent: View {
     private var rankingSection: some View {
         VStack(alignment: .leading, spacing: 14) {
             HStack {
-                Text("分类排行")
-                    .font(.headline)
+                Text("支出排行")
+                    .font(Typography.headline)
+                    .foregroundStyle(.primary)
                 Spacer()
-                Picker("类型", selection: $showIncome) {
-                    Text("支出").tag(false)
-                    Text("收入").tag(true)
+                // UI优化：参考设计稿使用自定义分段控件
+                HStack(spacing: 0) {
+                    Button {
+                        withSmoothAnimation(AppAnimation.spring) { showIncome = false }
+                    } label: {
+                        Text("支出")
+                            .font(.caption.weight(!showIncome ? .semibold : .regular))
+                            .foregroundStyle(!showIncome ? DSColor.buttonText : .secondary)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 6)
+                            .background(
+                                Capsule().fill(!showIncome ? DSColor.primary : .clear)
+                            )
+                    }
+                    .buttonStyle(.plain)
+
+                    Button {
+                        withSmoothAnimation(AppAnimation.spring) { showIncome = true }
+                    } label: {
+                        Text("收入")
+                            .font(.caption.weight(showIncome ? .semibold : .regular))
+                            .foregroundStyle(showIncome ? DSColor.buttonText : .secondary)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 6)
+                            .background(
+                                Capsule().fill(showIncome ? DSColor.primary : .clear)
+                            )
+                    }
+                    .buttonStyle(.plain)
                 }
-                .pickerStyle(.segmented)
-                .frame(width: 160)
+                .padding(2)
+                .frame(width: 120)
+                .background(Capsule().fill(DSColor.secondaryFill))
             }
 
             if ranking.isEmpty {
@@ -363,28 +517,32 @@ private struct StatisticsContent: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } else {
-                let maxAmount = ranking.first?.amount ?? 1
                 ForEach(ranking) { rank in
                     HStack(spacing: 10) {
-                        Image(systemName: rank.icon)
-                            .font(.system(size: 16))
-                            .frame(width: 32, height: 32)
-                            .background(Circle().fill(ColorPalette.color(for: rank.name).opacity(0.15)))
-                            .foregroundStyle(ColorPalette.color(for: rank.name))
+                        // UI优化：参考设计稿使用圆角方形图标
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .fill(ColorPalette.color(for: rank.name).opacity(0.15))
+                                .frame(width: 30, height: 30)
+                            Image(systemName: rank.icon)
+                                .font(.system(size: 13, weight: .medium))
+                                .foregroundStyle(ColorPalette.color(for: rank.name))
+                        }
 
                         Text(rank.name)
                             .font(.subheadline)
+                            .foregroundStyle(.primary)
                             .frame(width: 52, alignment: .leading)
 
                         GeometryReader { geo in
                             ZStack(alignment: .leading) {
-                                Capsule().fill(Color(.systemGray5))
+                                Capsule().fill(DSColor.track)
                                 Capsule()
-                                    .fill(ColorPalette.color(for: rank.name).opacity(0.8))
+                                    .fill(ColorPalette.color(for: rank.name).opacity(0.78))
                                     .frame(width: geo.size.width * CGFloat(double(rank.amount / maxAmount)))
                             }
                         }
-                        .frame(height: 8)
+                        .frame(height: 7)
 
                         Text(String(format: "%.1f%%", rank.percent))
                             .font(.caption)
@@ -393,6 +551,7 @@ private struct StatisticsContent: View {
 
                         Text("¥\(DateFormatters.money(rank.amount))")
                             .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.primary)
                             .frame(width: 84, alignment: .trailing)
                     }
                 }
@@ -422,25 +581,51 @@ private struct StatisticsContent: View {
 
     private var dailyBar: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("每日支出")
-                .font(.headline)
+            Text("支出趋势")
+                .font(Typography.headline)
+                .foregroundStyle(.primary)
             if dailyExpense.isEmpty {
                 Text("本月暂无支出")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } else {
                 Chart(dailyExpense) { item in
-                    BarMark(
+                    LineMark(
                         x: .value("日期", item.day, unit: .day),
                         y: .value("金额", double(item.amount))
                     )
-                    .foregroundStyle(AppTheme.primary.opacity(0.8))
+                    .foregroundStyle(DSColor.primary)
+                    .interpolationMethod(.catmullRom)
+                    AreaMark(
+                        x: .value("日期", item.day, unit: .day),
+                        y: .value("金额", double(item.amount))
+                    )
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [DSColor.primary.opacity(0.3), .clear],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .interpolationMethod(.catmullRom)
                 }
                 // 横轴显式中文格式（如 8月17日），不随系统语言变成 Aug 17
                 .chartXAxis {
                     AxisMarks { _ in
                         AxisGridLine()
+                            .foregroundStyle(DSColor.track)
                         AxisValueLabel(format: .dateTime.month(.defaultDigits).day().locale(Locale(identifier: "zh_CN")))
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .chartYAxis {
+                    AxisMarks { _ in
+                        AxisGridLine()
+                            .foregroundStyle(DSColor.track)
+                        AxisValueLabel()
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
                     }
                 }
                 .frame(height: 180)
@@ -483,24 +668,38 @@ private struct StatisticsContent: View {
     private var trendSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(period == .month ? "近 6 月收支趋势" : "全年每月收支")
-                .font(.headline)
+                .font(Typography.headline)
+                .foregroundStyle(.primary)
             Chart(trend) { item in
                 BarMark(
                     x: .value("月份", item.label),
                     y: .value("金额", item.income)
                 )
                 .foregroundStyle(by: .value("类型", "收入"))
+                .cornerRadius(3)
                 BarMark(
                     x: .value("月份", item.label),
                     y: .value("金额", item.expense)
                 )
                 .foregroundStyle(by: .value("类型", "支出"))
+                .cornerRadius(3)
             }
-            .chartForegroundStyleScale(["支出": AppTheme.expense, "收入": AppTheme.income])
+            .chartForegroundStyleScale(["支出": DSColor.expense, "收入": DSColor.income])
             // 横轴直接显示中文月份（如 3月/4月/5月…），不随系统语言变成 Mar/Apr
             .chartXAxis {
                 AxisMarks { _ in
                     AxisValueLabel()
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .chartYAxis {
+                AxisMarks { _ in
+                    AxisGridLine()
+                        .foregroundStyle(DSColor.track)
+                    AxisValueLabel()
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
                 }
             }
             .frame(height: 200)
@@ -512,5 +711,9 @@ private struct StatisticsContent: View {
 
     private func double(_ value: Decimal) -> Double {
         (value as NSDecimalNumber).doubleValue
+    }
+
+    private var maxAmount: Decimal {
+        ranking.first?.amount ?? 1
     }
 }

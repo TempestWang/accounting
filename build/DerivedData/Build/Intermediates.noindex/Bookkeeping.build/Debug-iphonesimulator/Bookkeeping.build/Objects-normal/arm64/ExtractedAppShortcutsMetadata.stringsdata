@@ -1,0 +1,32 @@
+{
+  "tables" : {
+    "AppShortcuts" : [
+      {
+        "key" : "用${applicationName}识别截图记账",
+        "values" : [
+          "用${applicationName}识别截图记账",
+          "${applicationName}识别截图"
+        ],
+        "appShortcutMetadata" : [
+          {
+            "parameterTypes" : {
+
+            },
+            "parameterDisplayRepresentations" : {
+
+            },
+            "actionIdentifier" : "RecognizeAndRecordIntent",
+            "title" : "识别截图",
+            "index" : 0
+          }
+        ],
+        "location" : {
+          "startingColumn" : 0,
+          "startingLine" : 5
+        }
+      }
+    ]
+  },
+  "version" : 2,
+  "source" : "\/Users\/tempestwang\/workspace\/accounting\/Bookkeeping\/Intents\/AppShortcutsProvider.swift"
+}

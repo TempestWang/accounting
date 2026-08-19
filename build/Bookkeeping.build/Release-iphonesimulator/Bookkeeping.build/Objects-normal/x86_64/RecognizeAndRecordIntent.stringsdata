@@ -1,0 +1,36 @@
+{
+  "source": "/Users/tempestwang/workspace/accounting/Bookkeeping/Intents/RecognizeAndRecordIntent.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "图片"
+      },
+      {
+        "comment": "",
+        "key": "识别截图",
+        "location": {
+          "startingColumn": 49,
+          "startingLine": 11
+        }
+      },
+      {
+        "comment": "",
+        "key": "识别付款截图的金额、商户、日期，并预填到「记一笔」页面。",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 12
+        }
+      },
+      {
+        "comment": "",
+        "key": "没有可识别的截图。请在快捷指令中把「最近的照片」等截屏变量连接到「图片」参数后重试。",
+        "location": {
+          "startingColumn": 17,
+          "startingLine": 39
+        }
+      }
+    ]
+  },
+  "version": 1
+}

@@ -13,8 +13,8 @@ enum TransactionType: String, Codable, CaseIterable, Identifiable {
         self == .expense ? "minus.circle.fill" : "plus.circle.fill"
     }
 
-    /// 展示用颜色：支出红、收入绿
+    /// 展示用颜色：支出暖珊瑚、收入草木绿（与 DesignSystem 一致）
     var color: Color {
-        self == .expense ? .red : .green
+        self == .expense ? DSColor.expense : DSColor.income
     }
 }

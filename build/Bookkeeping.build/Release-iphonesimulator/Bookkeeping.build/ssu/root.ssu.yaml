@@ -1,0 +1,27 @@
+apiVersion: ssu/v1
+nlu:
+  shortcuts:
+    bundleIdentifier: com.tempestwang.Bookkeeping
+    intents:
+    - metadata:
+        name: RecognizeAndRecordIntent_0
+        title: 识别截图
+      corpuses:
+        training:
+        - locale: zh-Hans
+          utterances:
+          - 用${+applicationName}识别截图记账
+          - ${+applicationName}识别截图
+    - metadata:
+        name: +negative
+      corpuses:
+        training:
+        - locale: zh-Hans
+          utterances: []
+variables:
+- name: +applicationName
+  type: ssu/expansion
+  definitions:
+  - locale: zh-Hans
+    synomyms:
+    - 账本

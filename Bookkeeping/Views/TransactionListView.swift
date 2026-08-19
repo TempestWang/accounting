@@ -9,7 +9,7 @@ enum TxFilter: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
-/// 明细页：全部/支出/收入筛选 + 按天分组流水
+/// 明细页：固定筛选栏（全部/支出/收入）+ 按天分组流水
 ///
 /// 数据源：@Query 直接监听 SwiftData 存储，新增 / 编辑 / 删除交易后
 /// 列表自动刷新，不依赖手动刷新、onAppear 或 dismiss 时序。
@@ -43,39 +43,12 @@ struct TransactionListView: View {
     }
 
     var body: some View {
-        List {
-            Section {
-                Picker("筛选", selection: $filter) {
-                    ForEach(TxFilter.allCases) { item in
-                        Text(item.rawValue).tag(item)
-                    }
-                }
-                .pickerStyle(.segmented)
-                .listRowBackground(Color.clear)
-            }
-
-            ForEach(groupedByDay, id: \.0) { day, items in
-                Section {
-                    ForEach(items) { tx in
-                        TransactionRow(transaction: tx)
-                            .contentShape(Rectangle())
-                            .onTapGesture { editingTransaction = tx }
-                    }
-                    .onDelete { offsets in
-                        delete(items: items, at: offsets)
-                    }
-                } header: {
-                    HStack {
-                        Text(DateFormatters.dayHeader(day))
-                        Spacer()
-                        Text(dayTotal(items))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            }
+        VStack(spacing: 0) {
+            filterBar
+            transactionList
         }
-        .background(AppTheme.background)
+        // UI优化：根据设计稿调整背景色
+        .background(DSColor.background)
         .navigationTitle("明细")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -84,6 +57,7 @@ struct TransactionListView: View {
                     showRecognition = true
                 } label: {
                     Image(systemName: "text.viewfinder")
+                        .font(.system(size: 18))
                 }
                 .accessibilityLabel("从截图识别记账")
 
@@ -91,6 +65,7 @@ struct TransactionListView: View {
                     showForm = true
                 } label: {
                     Image(systemName: "plus")
+                        .font(.system(size: 18))
                 }
                 .accessibilityLabel("记一笔")
             }
@@ -109,12 +84,71 @@ struct TransactionListView: View {
         } message: {
             Text(errorText)
         }
+    }
+
+    // MARK: - 筛选栏（固定在导航栏下方，不随列表滚动）
+
+    private var filterBar: some View {
+        VStack(spacing: 0) {
+            // UI优化：参考设计稿使用紫色分段筛选
+            DSFilterPills(
+                options: TxFilter.allCases.map { ($0.rawValue, $0) },
+                selection: $filter,
+                tint: DSColor.primaryFill
+            )
+            .padding(.horizontal, AppSpacing.l)
+            .padding(.vertical, AppSpacing.s)
+            Rectangle()
+                .fill(DSColor.hairline)
+                .frame(height: 1)
+        }
+        .background(DSColor.background)
+    }
+
+    // MARK: - 流水列表
+
+    private var transactionList: some View {
+        List {
+            ForEach(groupedByDay, id: \.0) { day, items in
+                Section {
+                    ForEach(items) { tx in
+                        TransactionRow(transaction: tx)
+                            .contentShape(Rectangle())
+                            .onTapGesture { editingTransaction = tx }
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
+                            .listRowInsets(
+                                EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16)
+                            )
+                    }
+                    .onDelete { offsets in
+                        delete(items: items, at: offsets)
+                    }
+                } header: {
+                    HStack {
+                        Text(DateFormatters.dayHeader(day))
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Text(dayTotal(items))
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
+                    }
+                    .padding(.top, AppSpacing.m)
+                }
+            }
+        }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+        .background(DSColor.background)
+        .animation(AppAnimation.content, value: filter)
+        .animation(AppAnimation.spring, value: allTransactions.count)
         .overlay {
             if transactions.isEmpty {
-                ContentUnavailableView(
-                    "暂无账目",
-                    systemImage: "tray",
-                    description: Text("点击右上角 + 记一笔，或从付款截图自动识别。")
+                DSEmptyView(
+                    icon: "tray",
+                    title: "暂无账目",
+                    message: "点击右上角 + 记一笔，或从付款截图自动识别。"
                 )
             }
         }
@@ -136,8 +170,8 @@ struct TransactionListView: View {
         let inc = items.filter { $0.type == .income }
             .reduce(Decimal.zero) { $0 + $1.amount }
         var parts: [String] = []
-        if exp > 0 { parts.append("支出 \(DateFormatters.money(exp))") }
-        if inc > 0 { parts.append("收入 \(DateFormatters.money(inc))") }
+        if exp > 0 { parts.append("支 \(DateFormatters.money(exp))") }
+        if inc > 0 { parts.append("收 \(DateFormatters.money(inc))") }
         return parts.joined(separator: " · ")
     }
 

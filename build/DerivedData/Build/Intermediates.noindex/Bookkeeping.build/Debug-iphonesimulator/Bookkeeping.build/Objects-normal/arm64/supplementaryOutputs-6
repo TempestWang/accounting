@@ -1,0 +1,23 @@
+{
+  "/Users/tempestwang/workspace/accounting/Bookkeeping/Views/HomeView.swift" : {
+    "const-values" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/HomeView.swiftconstvalues",
+    "dependencies" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/HomeView.d",
+    "diagnostics" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/HomeView.dia",
+    "object" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/HomeView.o",
+    "swift-dependencies" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/HomeView.swiftdeps"
+  },
+  "/Users/tempestwang/workspace/accounting/Bookkeeping/Views/ImageRecognitionView.swift" : {
+    "const-values" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/ImageRecognitionView.swiftconstvalues",
+    "dependencies" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/ImageRecognitionView.d",
+    "diagnostics" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/ImageRecognitionView.dia",
+    "object" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/ImageRecognitionView.o",
+    "swift-dependencies" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/ImageRecognitionView.swiftdeps"
+  },
+  "/Users/tempestwang/workspace/accounting/Bookkeeping/Views/PendingTransactionListView.swift" : {
+    "const-values" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/PendingTransactionListView.swiftconstvalues",
+    "dependencies" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/PendingTransactionListView.d",
+    "diagnostics" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/PendingTransactionListView.dia",
+    "object" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/PendingTransactionListView.o",
+    "swift-dependencies" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/PendingTransactionListView.swiftdeps"
+  }
+}

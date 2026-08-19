@@ -1,0 +1,19 @@
+{
+  "" : {
+    "diagnostics" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/BookkeepingUnitTests.build/Objects-normal/arm64/BookkeepingUnitTests-primary.dia",
+    "emit-module-dependencies" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/BookkeepingUnitTests.build/Objects-normal/arm64/BookkeepingUnitTests-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/BookkeepingUnitTests.build/Objects-normal/arm64/BookkeepingUnitTests-primary-emit-module.dia",
+    "pch" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/BookkeepingUnitTests.build/Objects-normal/arm64/BookkeepingUnitTests-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/BookkeepingUnitTests.build/Objects-normal/arm64/BookkeepingUnitTests-primary.swiftdeps"
+  },
+  "/Users/tempestwang/workspace/accounting/BookkeepingUnitTests/ThemeModelTests.swift" : {
+    "const-values" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/BookkeepingUnitTests.build/Objects-normal/arm64/ThemeModelTests.swiftconstvalues",
+    "dependencies" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/BookkeepingUnitTests.build/Objects-normal/arm64/ThemeModelTests.d",
+    "diagnostics" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/BookkeepingUnitTests.build/Objects-normal/arm64/ThemeModelTests.dia",
+    "index-unit-output-path" : "/Bookkeeping.build/Debug-iphonesimulator/BookkeepingUnitTests.build/Objects-normal/arm64/ThemeModelTests.o",
+    "llvm-bc" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/BookkeepingUnitTests.build/Objects-normal/arm64/ThemeModelTests.bc",
+    "object" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/BookkeepingUnitTests.build/Objects-normal/arm64/ThemeModelTests.o",
+    "swift-dependencies" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/BookkeepingUnitTests.build/Objects-normal/arm64/ThemeModelTests.swiftdeps",
+    "swiftmodule" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/BookkeepingUnitTests.build/Objects-normal/arm64/ThemeModelTests~partial.swiftmodule"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "/Users/tempestwang/workspace/accounting/Bookkeeping/Views/CategoryManageView.swift" : {
+    "const-values" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/CategoryManageView.swiftconstvalues",
+    "dependencies" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/CategoryManageView.d",
+    "diagnostics" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/CategoryManageView.dia",
+    "object" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/CategoryManageView.o",
+    "swift-dependencies" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/CategoryManageView.swiftdeps"
+  },
+  "/Users/tempestwang/workspace/accounting/Bookkeeping/Views/ConfirmTransactionView.swift" : {
+    "const-values" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/ConfirmTransactionView.swiftconstvalues",
+    "dependencies" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/ConfirmTransactionView.d",
+    "diagnostics" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/ConfirmTransactionView.dia",
+    "object" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/ConfirmTransactionView.o",
+    "swift-dependencies" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/ConfirmTransactionView.swiftdeps"
+  },
+  "/Users/tempestwang/workspace/accounting/Bookkeeping/Views/ContentView.swift" : {
+    "const-values" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/ContentView.swiftconstvalues",
+    "dependencies" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/ContentView.d",
+    "diagnostics" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/ContentView.dia",
+    "object" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/ContentView.o",
+    "swift-dependencies" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/ContentView.swiftdeps"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "source": "/Users/tempestwang/workspace/accounting/Bookkeeping/Views/PendingTransactionListView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "待确认账单",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 29
+        }
+      },
+      {
+        "comment": "",
+        "key": "识别结果仅作为草稿，确认保存后才会记账",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 24
+        }
+      },
+      {
+        "comment": "",
+        "key": "完成",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 33
+        }
+      },
+      {
+        "comment": "",
+        "key": "¥%@",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 76
+        }
+      },
+      {
+        "comment": "",
+        "key": "待核对",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 80
+        }
+      }
+    ]
+  },
+  "version": 1
+}

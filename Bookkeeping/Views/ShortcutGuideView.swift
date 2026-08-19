@@ -1,6 +1,7 @@
 import SwiftUI
 
 /// 快捷指令搭建教程
+/// UI优化：根据设计稿调整列表样式
 struct ShortcutGuideView: View {
     var body: some View {
         List {

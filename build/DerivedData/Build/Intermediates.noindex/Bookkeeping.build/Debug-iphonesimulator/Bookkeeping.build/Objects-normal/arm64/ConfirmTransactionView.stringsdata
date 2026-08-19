@@ -1,0 +1,240 @@
+{
+  "source": "/Users/tempestwang/workspace/accounting/Bookkeeping/Views/ConfirmTransactionView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "确认账单",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 63
+        }
+      },
+      {
+        "comment": "",
+        "key": "提示",
+        "location": {
+          "startingColumn": 16,
+          "startingLine": 83
+        }
+      },
+      {
+        "comment": "",
+        "key": "放弃这笔账单？",
+        "location": {
+          "startingColumn": 16,
+          "startingLine": 88
+        }
+      },
+      {
+        "comment": "",
+        "key": "取消",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 67
+        }
+      },
+      {
+        "comment": "",
+        "key": "好",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 84
+        }
+      },
+      {
+        "comment": "",
+        "key": "放弃",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 89
+        }
+      },
+      {
+        "comment": "",
+        "key": "继续编辑",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 90
+        }
+      },
+      {
+        "comment": "",
+        "key": "放弃后不会创建任何账单记录。",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 92
+        }
+      },
+      {
+        "comment": "",
+        "key": "识别结果仅供参考，请核对后保存",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 166
+        }
+      },
+      {
+        "comment": "",
+        "key": "已识别一笔账单",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 126
+        }
+      },
+      {
+        "comment": "",
+        "key": "请核对",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 134
+        }
+      },
+      {
+        "comment": "",
+        "key": "¥",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 145
+        }
+      },
+      {
+        "comment": "",
+        "key": "原始截图",
+        "location": {
+          "startingColumn": 19,
+          "startingLine": 196
+        }
+      },
+      {
+        "comment": "",
+        "key": "0.00",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 246
+        }
+      },
+      {
+        "comment": "",
+        "key": "请输入大于 0 的金额",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 254
+        }
+      },
+      {
+        "comment": "",
+        "key": "金额将计入本月%@",
+        "location": {
+          "startingColumn": 71,
+          "startingLine": 254
+        }
+      },
+      {
+        "comment": "",
+        "key": "支出",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 231
+        }
+      },
+      {
+        "comment": "",
+        "key": "收入",
+        "location": {
+          "startingColumn": 57,
+          "startingLine": 231
+        }
+      },
+      {
+        "comment": "",
+        "key": "商户（如：星巴克）",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 270
+        }
+      },
+      {
+        "comment": "",
+        "key": "备注（选填）",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 292
+        }
+      },
+      {
+        "comment": "",
+        "key": "选择日期",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 340
+        }
+      },
+      {
+        "comment": "",
+        "key": "日期",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 325
+        }
+      },
+      {
+        "comment": "",
+        "key": "",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 329
+        }
+      },
+      {
+        "comment": "",
+        "key": "放弃",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 367
+        }
+      },
+      {
+        "comment": "",
+        "key": "保存账单",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 381
+        }
+      },
+      {
+        "comment": "",
+        "key": "选择分类",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 493
+        }
+      },
+      {
+        "comment": "",
+        "key": "关闭",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 497
+        }
+      },
+      {
+        "comment": "",
+        "key": "原始截图",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 519
+        }
+      },
+      {
+        "comment": "",
+        "key": "关闭",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 523
+        }
+      }
+    ]
+  },
+  "version": 1
+}

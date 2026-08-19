@@ -4,7 +4,7 @@
 
 ## 功能
 
-- **界面风格**：蓝主题、白色圆角卡片、首页总览大卡片、底部四标签（首页 / 明细 / 统计 / 我的）
+- **界面风格**：8 套精美主题（Apple 默认 / Midnight 夜空 / Purple Dream 紫境 / Ocean 海洋 / Forest 森林 / Sunset 日落 / Minimal 极简 / Gold Wealth 财富）+ 跟随系统 / 浅色 / 深色三种外观模式；白色圆角卡片、首页总览大卡片、底部五标签（首页 / 明细 / 统计 / 预算 / 我的）
 - **首页总览**：本月支出大数字 + 收入/结余 + 预算进度条，彩色分类快捷记账，最近流水，悬浮「记一笔」按钮
 - **明细列表**：全部 / 支出 / 收入 筛选，按天分组、每日小计、滑动删除、点击编辑
 - **统计报表**：月度 / 年度切换、支出 / 收入切换、分类排行（百分比 + 进度条 + 金额）、支出占比环图、每日支出柱状图、近 6 月收支趋势、预算进度
@@ -13,6 +13,7 @@
 - **CSV 导出**：一键分享全部流水
 - **JSON 备份/恢复**：完整备份分类 / 流水 / 预算（保留金额精度），可导入恢复，防止换机或误删丢失数据
 - **iCloud 云同步**：登录 iCloud 后账目自动跨设备同步（默认关闭；需要付费开发者账号，免费账号不可用）
+- **主题系统**：「我的」页 → 主题设置，Apple 设置风格大圆角卡片 + 实时预览 + 毛玻璃质感，点击立即切换，全 App 页面即时换肤，选择持久化（重启保留）
 - **自动化记账**（核心）：
   1. **双敲背面全自动**：敲两下截屏 → 敲三下快捷指令自动记账
   2. **截图分享直达**：截屏后从分享面板选「账本记账」
@@ -31,7 +32,8 @@ accounting/
     ├── Models/                    # Transaction / Category / Budget / TransactionType
     ├── Intents/                   # 快捷指令 App Intent + Siri 短语
     ├── Services/                  # OCRService（Vision）/ PaymentParser（解析）
-    ├── Views/                     # 明细 / 表单 / 统计 / 设置 / 分类 / 识别
+    ├── Theme/                     # 主题系统：ThemeManager / AppTheme / ThemeColors / ThemePreview
+    ├── Views/                     # 明细 / 表单 / 统计 / 设置 / 分类 / 识别 / 主题设置
     ├── Helpers/                   # 默认分类 / 日期格式化 / CSV / 配色
     └── Assets.xcassets/           # 图标与主题色
 ```
@@ -194,3 +196,64 @@ A：可以，但需要付费开发者账号并按 App Store 审核规范补充�
 ## 技术栈
 
 SwiftUI · SwiftData（iOS 17+）· Swift Charts · Vision OCR · App Intents · CloudKit 云同步（可选，默认关闭）
+
+---
+
+## 主题系统（Theme）
+
+### 架构
+
+```
+Bookkeeping/Theme/
+├── ThemeManager.swift     # 单例 ObservableObject：@Published 当前主题 & 外观模式，
+│                          # UserDefaults 持久化、renderToken 全局刷新令牌
+├── AppTheme.swift         # 主题模型 + 8 套主题定义（深浅两套色板）
+├── ThemeColors.swift      # RGBColor / ThemePalette / ThemeColors（动态色）+ ThemeButtonStyle
+└── ThemePreview.swift     # 实时预览小部件（App 首页模拟图 / 色点 / 渐变条 / 预览卡）
+```
+
+- **ThemeManager**（`ThemeManager.shared`）管理「当前主题」与「外观模式」（跟随系统 / 浅色 / 深色），
+  选择通过 UserDefaults 持久化（`app.theme.id` / `app.appearance.mode`），App 重启自动恢复。
+- **动态色**：每套主题同时定义 Light / Dark 两套色板，解析为 `UIColor` 动态 Provider 颜色，
+  随「系统深浅色 × 外观设置」在渲染时自动切换。
+- **全局即时生效**：既有页面全部通过静态 `DSColor.*` 取色；`DSColor` 现在只是
+  `ThemeManager.shared.colors` 的门面。根视图 `ContentView.id(theme.renderToken)` 在主题
+  切换时全量重建页面树（Tab 位置由 RootView 持有，切换后不丢），因此首页 / 明细 / 添加账单 /
+  统计 / 预算 / 我的所有页面**无需逐个改造**即自动换肤。
+
+### 如何新加一套主题
+
+1. 在 `AppTheme.swift` 中仿照现有主题新增静态成员，定义 `id / name / subtitle / symbolName /
+   buttonStyle / light / dark` 两套 `ThemePalette`（主色、辅助色、渐变起止、背景、卡片、英雄卡、
+   光晕；文字/分割线等中性层自动推导）。
+2. 将其加入 `AppTheme.all`（顺序即展示顺序）。
+3. 主题即可出现在设置页并全 App 生效；如需自定义按钮形态，设置
+   `buttonStyle: .solid`（实心）或 `.gradient`（渐变）。
+
+### 在视图里读取主题
+
+```swift
+// 方式一：环境对象（主题 / 外观变化时本视图自动刷新）
+@EnvironmentObject var theme: ThemeManager
+theme.colors.primary          // 当前主题动态色
+theme.theme.name              // 当前主题名
+theme.appearanceMode          // 当前外观模式
+
+// 方式二：静态门面（与既有代码一致，主题切换时由根视图重建保证即时刷新）
+DSColor.primary / DSColor.background / DSColor.cardBackground ...
+```
+
+### 运行测试
+
+```bash
+# 主题引擎单元测试（13 项：8 套主题数据、持久化/重启恢复、外观映射、渲染令牌、颜色解析）
+xcodebuild test -project Bookkeeping.xcodeproj \
+  -scheme Bookkeeping -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+  -only-testing:BookkeepingUnitTests/ThemeModelTests
+
+# 主题端到端 UI 测试（主题设置面板切换 + 持久化；可在 Xcode GUI / 正常模拟器环境运行）
+xcodebuild test -project Bookkeeping.xcodeproj \
+  -scheme ThemeUITests -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+  -only-testing:BookkeepingUITests/ThemeUITests
+```
+

@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 
 /// 分类管理：内置分类不可删，自定义分类可增删改
+/// UI优化：根据设计稿调整列表样式
 struct CategoryManageView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
@@ -32,6 +33,7 @@ struct CategoryManageView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("完成") { dismiss() }
+                        .foregroundStyle(DSColor.primary)
                 }
                 ToolbarItem(placement: .primaryAction) {
                     Button {
@@ -79,9 +81,15 @@ struct CategoryManageView: View {
 
     private func row(_ cat: Category) -> some View {
         HStack(spacing: 12) {
-            Image(systemName: cat.icon)
-                .foregroundStyle(ColorPalette.color(for: cat.name))
-                .frame(width: 28)
+            // UI优化：参考设计稿使用圆角方形图标背景
+            ZStack {
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(ColorPalette.color(for: cat.name).opacity(0.15))
+                    .frame(width: 32, height: 32)
+                Image(systemName: cat.icon)
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundStyle(ColorPalette.color(for: cat.name))
+            }
             Text(cat.name)
             if cat.isBuiltin {
                 Text("内置")
@@ -183,13 +191,25 @@ struct CategoryEditView: View {
                             } label: {
                                 Image(systemName: symbol)
                                     .font(.system(size: 20))
+                                    .foregroundStyle(icon == symbol ? DSColor.primary : .secondary)
                                     .frame(width: 40, height: 40)
                                     .background(
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .fill(icon == symbol ? Color.accentColor.opacity(0.3) : Color.clear)
+                                        // UI优化：参考设计稿使用圆角方形
+                                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                            .fill(
+                                                icon == symbol ? DSColor.primary.opacity(0.16) : Color.clear
+                                            )
+                                    )
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                            .strokeBorder(
+                                                icon == symbol ? DSColor.primary.opacity(0.75) : .clear,
+                                                lineWidth: 1.5
+                                            )
                                     )
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(DSScaleButtonStyle())
+                            .animation(AppAnimation.smooth, value: icon)
                         }
                     }
                     .padding(.vertical, 4)
@@ -200,9 +220,12 @@ struct CategoryEditView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("取消") { dismiss() }
+                        .foregroundStyle(.secondary)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("保存") { save() }
+                        .foregroundStyle(DSColor.primary)
+                        .fontWeight(.semibold)
                 }
             }
             .onAppear {

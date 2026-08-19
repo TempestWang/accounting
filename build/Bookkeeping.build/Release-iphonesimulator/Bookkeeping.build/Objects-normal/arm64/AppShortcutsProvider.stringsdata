@@ -1,0 +1,16 @@
+{
+  "source": "/Users/tempestwang/workspace/accounting/Bookkeeping/Intents/AppShortcutsProvider.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "识别截图",
+        "location": {
+          "startingColumn": 25,
+          "startingLine": 12
+        }
+      }
+    ]
+  },
+  "version": 1
+}

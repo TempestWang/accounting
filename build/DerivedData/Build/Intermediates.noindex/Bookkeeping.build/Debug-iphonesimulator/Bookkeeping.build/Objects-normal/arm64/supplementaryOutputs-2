@@ -1,0 +1,23 @@
+{
+  "/Users/tempestwang/workspace/accounting/Bookkeeping/Models/Transaction.swift" : {
+    "const-values" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/Transaction.swiftconstvalues",
+    "dependencies" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/Transaction.d",
+    "diagnostics" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/Transaction.dia",
+    "object" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/Transaction.o",
+    "swift-dependencies" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/Transaction.swiftdeps"
+  },
+  "/Users/tempestwang/workspace/accounting/Bookkeeping/Services/OCRService.swift" : {
+    "const-values" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/OCRService.swiftconstvalues",
+    "dependencies" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/OCRService.d",
+    "diagnostics" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/OCRService.dia",
+    "object" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/OCRService.o",
+    "swift-dependencies" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/OCRService.swiftdeps"
+  },
+  "/Users/tempestwang/workspace/accounting/Bookkeeping/Services/PaymentParser.swift" : {
+    "const-values" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/PaymentParser.swiftconstvalues",
+    "dependencies" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/PaymentParser.d",
+    "diagnostics" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/PaymentParser.dia",
+    "object" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/PaymentParser.o",
+    "swift-dependencies" : "/Users/tempestwang/workspace/accounting/build/DerivedData/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/PaymentParser.swiftdeps"
+  }
+}

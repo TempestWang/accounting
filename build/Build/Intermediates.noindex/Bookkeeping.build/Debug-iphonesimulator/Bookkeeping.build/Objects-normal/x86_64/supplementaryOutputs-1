@@ -1,0 +1,44 @@
+{
+  "/Users/tempestwang/workspace/accounting/Bookkeeping/DesignSystem/Animation.swift" : {
+    "const-values" : "/Users/tempestwang/workspace/accounting/build/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/x86_64/Animation.swiftconstvalues",
+    "dependencies" : "/Users/tempestwang/workspace/accounting/build/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/x86_64/Animation.d",
+    "diagnostics" : "/Users/tempestwang/workspace/accounting/build/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/x86_64/Animation.dia",
+    "object" : "/Users/tempestwang/workspace/accounting/build/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/x86_64/Animation.o",
+    "swift-dependencies" : "/Users/tempestwang/workspace/accounting/build/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/x86_64/Animation.swiftdeps"
+  },
+  "/Users/tempestwang/workspace/accounting/Bookkeeping/DesignSystem/Components.swift" : {
+    "const-values" : "/Users/tempestwang/workspace/accounting/build/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/x86_64/Components.swiftconstvalues",
+    "dependencies" : "/Users/tempestwang/workspace/accounting/build/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/x86_64/Components.d",
+    "diagnostics" : "/Users/tempestwang/workspace/accounting/build/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/x86_64/Components.dia",
+    "object" : "/Users/tempestwang/workspace/accounting/build/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/x86_64/Components.o",
+    "swift-dependencies" : "/Users/tempestwang/workspace/accounting/build/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/x86_64/Components.swiftdeps"
+  },
+  "/Users/tempestwang/workspace/accounting/Bookkeeping/DesignSystem/DesignTokens.swift" : {
+    "const-values" : "/Users/tempestwang/workspace/accounting/build/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/x86_64/DesignTokens.swiftconstvalues",
+    "dependencies" : "/Users/tempestwang/workspace/accounting/build/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/x86_64/DesignTokens.d",
+    "diagnostics" : "/Users/tempestwang/workspace/accounting/build/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/x86_64/DesignTokens.dia",
+    "object" : "/Users/tempestwang/workspace/accounting/build/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/x86_64/DesignTokens.o",
+    "swift-dependencies" : "/Users/tempestwang/workspace/accounting/build/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/x86_64/DesignTokens.swiftdeps"
+  },
+  "/Users/tempestwang/workspace/accounting/Bookkeeping/Helpers/AppThemeCompat.swift" : {
+    "const-values" : "/Users/tempestwang/workspace/accounting/build/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/x86_64/AppThemeCompat.swiftconstvalues",
+    "dependencies" : "/Users/tempestwang/workspace/accounting/build/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/x86_64/AppThemeCompat.d",
+    "diagnostics" : "/Users/tempestwang/workspace/accounting/build/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/x86_64/AppThemeCompat.dia",
+    "object" : "/Users/tempestwang/workspace/accounting/build/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/x86_64/AppThemeCompat.o",
+    "swift-dependencies" : "/Users/tempestwang/workspace/accounting/build/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/x86_64/AppThemeCompat.swiftdeps"
+  },
+  "/Users/tempestwang/workspace/accounting/Bookkeeping/Helpers/BackupManager.swift" : {
+    "const-values" : "/Users/tempestwang/workspace/accounting/build/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/x86_64/BackupManager.swiftconstvalues",
+    "dependencies" : "/Users/tempestwang/workspace/accounting/build/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/x86_64/BackupManager.d",
+    "diagnostics" : "/Users/tempestwang/workspace/accounting/build/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/x86_64/BackupManager.dia",
+    "object" : "/Users/tempestwang/workspace/accounting/build/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/x86_64/BackupManager.o",
+    "swift-dependencies" : "/Users/tempestwang/workspace/accounting/build/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/x86_64/BackupManager.swiftdeps"
+  },
+  "/Users/tempestwang/workspace/accounting/Bookkeeping/Helpers/BudgetService.swift" : {
+    "const-values" : "/Users/tempestwang/workspace/accounting/build/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/x86_64/BudgetService.swiftconstvalues",
+    "dependencies" : "/Users/tempestwang/workspace/accounting/build/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/x86_64/BudgetService.d",
+    "diagnostics" : "/Users/tempestwang/workspace/accounting/build/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/x86_64/BudgetService.dia",
+    "object" : "/Users/tempestwang/workspace/accounting/build/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/x86_64/BudgetService.o",
+    "swift-dependencies" : "/Users/tempestwang/workspace/accounting/build/Build/Intermediates.noindex/Bookkeeping.build/Debug-iphonesimulator/Bookkeeping.build/Objects-normal/x86_64/BudgetService.swiftdeps"
+  }
+}

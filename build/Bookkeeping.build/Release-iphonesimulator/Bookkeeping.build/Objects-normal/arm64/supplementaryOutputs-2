@@ -1,0 +1,12 @@
+{
+  "/Users/tempestwang/workspace/accounting/Bookkeeping/DesignSystem/Animation.swift" : {
+    "abi-baseline-json" : "/Users/tempestwang/workspace/accounting/build/Bookkeeping.build/Release-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/Bookkeeping.abi.json",
+    "const-values" : "/Users/tempestwang/workspace/accounting/build/Bookkeeping.build/Release-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/Bookkeeping-primary.swiftconstvalues",
+    "dependencies" : "/Users/tempestwang/workspace/accounting/build/Bookkeeping.build/Release-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/Bookkeeping-primary.d",
+    "diagnostics" : "/Users/tempestwang/workspace/accounting/build/Bookkeeping.build/Release-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/Bookkeeping-primary.dia",
+    "objc-header" : "/Users/tempestwang/workspace/accounting/build/Bookkeeping.build/Release-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/Bookkeeping-Swift.h",
+    "swiftdoc" : "/Users/tempestwang/workspace/accounting/build/Bookkeeping.build/Release-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/Bookkeeping.swiftdoc",
+    "swiftmodule" : "/Users/tempestwang/workspace/accounting/build/Bookkeeping.build/Release-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/Bookkeeping.swiftmodule",
+    "swiftsourceinfo" : "/Users/tempestwang/workspace/accounting/build/Bookkeeping.build/Release-iphonesimulator/Bookkeeping.build/Objects-normal/arm64/Bookkeeping.swiftsourceinfo"
+  }
+}

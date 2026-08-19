@@ -1,0 +1,24 @@
+{
+  "source": "/Users/tempestwang/workspace/accounting/Bookkeeping/Views/ThemeSettingsView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "主题设置",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 34
+        }
+      },
+      {
+        "comment": "",
+        "key": "完成",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 38
+        }
+      }
+    ]
+  },
+  "version": 1
+}

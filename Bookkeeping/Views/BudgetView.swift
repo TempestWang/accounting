@@ -31,7 +31,8 @@ struct BudgetView: View {
                 .padding(.top, AppSpacing.s)
                 .padding(.bottom, AppSpacing.xxxl)
             }
-            .background(AppTheme.budgetBackground)
+            // UI优化：根据设计稿调整背景色
+            .background(DSColor.background)
             .navigationTitle("预算")
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showEdit) {
@@ -70,7 +71,7 @@ struct BudgetView: View {
                         withAnimation(.easeInOut(duration: 0.25)) { referenceDate = Date() }
                     }
                     .font(.caption)
-                    .foregroundStyle(AppTheme.budgetHealthy)
+                    .foregroundStyle(DSColor.healthy)
                 }
             }
             Spacer()
@@ -87,7 +88,7 @@ struct BudgetView: View {
                 .font(.system(size: 15, weight: .semibold))
                 .foregroundStyle(.primary)
                 .frame(width: 38, height: 38)
-                .background(Circle().fill(AppTheme.cardBackground))
+                .background(Circle().fill(DSColor.cardBackground))
                 .shadow(color: .black.opacity(0.06), radius: 6, y: 2)
         }
         .buttonStyle(.plain)
@@ -179,16 +180,16 @@ private struct BudgetContent: View {
         }
     }
 
-    // MARK: - 核心预算卡片（青绿渐变 · 大额数字）
+    // MARK: - 核心预算卡片（柔和层次 · 大额数字）
 
     @State private var barRevealed = false
 
     private func heroCard(_ s: BudgetService.MonthSummary) -> some View {
         VStack(alignment: .leading, spacing: AppSpacing.xl) {
             HStack {
-                Text("\(BudgetService.monthTitle(monthKey))预算")
+                Text("\(BudgetService.monthTitle(monthKey)) · 本月预算")
                     .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.white.opacity(0.8))
+                    .foregroundStyle(.secondary)
                 Spacer()
                 statusPill(s)
             }
@@ -197,14 +198,14 @@ private struct BudgetContent: View {
             VStack(alignment: .leading, spacing: AppSpacing.xs) {
                 Text("本月预算")
                     .font(.caption)
-                    .foregroundStyle(.white.opacity(0.75))
+                    .foregroundStyle(.secondary)
                 HStack(alignment: .firstTextBaseline, spacing: AppSpacing.xs) {
                     Text("¥")
-                        .font(.system(size: 26, weight: .semibold))
-                        .foregroundStyle(.white)
+                        .font(.system(size: 26, weight: .semibold, design: .rounded))
+                        .foregroundStyle(.primary)
                     Text(DateFormatters.money(s.budget?.amount ?? 0))
                         .font(.system(size: 40, weight: .bold, design: .rounded))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(.primary)
                         .contentTransition(.numericText(value: BudgetService.double(s.budget?.amount ?? 0)))
                         .minimumScaleFactor(0.6)
                         .lineLimit(1)
@@ -215,7 +216,7 @@ private struct BudgetContent: View {
             VStack(spacing: AppSpacing.m) {
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
-                        Capsule().fill(.white.opacity(0.28))
+                        Capsule().fill(DSColor.track)
                         Capsule()
                             .fill(progressColor(s))
                             .frame(width: max(geo.size.width * CGFloat(min(s.ratio, 1.0)) * (barRevealed ? 1 : 0), barRevealed && s.ratio > 0 ? 6 : 0))
@@ -228,32 +229,29 @@ private struct BudgetContent: View {
                 }
 
                 HStack(spacing: 0) {
-                    heroStat(title: "已使用", value: BudgetService.percentText(s.ratio), color: .white)
+                    heroStat(title: "已使用", value: BudgetService.percentText(s.ratio), color: progressColor(s))
                     heroDivider
-                    heroStat(title: "已支出", value: "¥\(DateFormatters.money(s.expense))", color: .white)
+                    heroStat(title: "已支出", value: "¥\(DateFormatters.money(s.expense))", color: .primary)
                     heroDivider
                     if s.isOver {
                         heroOverStat(title: "已超支", value: "¥\(DateFormatters.money(-s.remaining))")
                     } else {
-                        heroStat(title: "剩余", value: "¥\(DateFormatters.money(s.remaining))", color: .white)
+                        heroStat(title: "剩余", value: "¥\(DateFormatters.money(s.remaining))", color: .primary)
                     }
                 }
             }
         }
         .padding(AppSpacing.xl)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: AppRadius.xlarge)
-                .fill(AppTheme.budgetGradient)
-                .shadow(color: AppTheme.budgetHealthy.opacity(0.25), radius: 14, y: 6)
-        )
+        // UI优化：根据设计稿调整为深色卡片背景
+        .background(heroBackground)
     }
 
     private func heroStat(title: String, value: String, color: Color) -> some View {
         VStack(spacing: 2) {
             Text(title)
                 .font(.caption)
-                .foregroundStyle(.white.opacity(0.7))
+                .foregroundStyle(.secondary)
             Text(value)
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(color)
@@ -267,52 +265,64 @@ private struct BudgetContent: View {
         VStack(spacing: 2) {
             Text(title)
                 .font(.caption)
-                .foregroundStyle(.white.opacity(0.9))
+                .foregroundStyle(.secondary)
             Text(value)
                 .font(.subheadline.weight(.bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(DSColor.expense)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
-                .padding(.horizontal, AppSpacing.s)
-                .padding(.vertical, 2)
-                .background(Capsule().fill(Color.white.opacity(0.92)))
         }
         .frame(maxWidth: .infinity)
     }
 
     private var heroDivider: some View {
         Rectangle()
-            .fill(.white.opacity(0.35))
+            .fill(DSColor.hairline)
             .frame(width: 1, height: 28)
     }
 
     private func statusPill(_ s: BudgetService.MonthSummary) -> some View {
         let color = statusColor(s.status)
         return HStack(spacing: 5) {
-            Circle().fill(.white).frame(width: 5, height: 5)
+            Circle().fill(color).frame(width: 5, height: 5)
             Text(s.isOver ? "本月已超支" : (s.status?.label ?? "预算正常"))
                 .font(.caption.weight(.semibold))
         }
-        .foregroundStyle(color == .white ? .white : color)
+        .foregroundStyle(color)
         .padding(.horizontal, AppSpacing.m)
         .padding(.vertical, 6)
-        .background(
-            Capsule().fill(Color.white.opacity(0.92))
-        )
+        .background(Capsule().fill(color.opacity(0.12)))
     }
 
     private func progressColor(_ s: BudgetService.MonthSummary) -> Color {
-        if s.isOver { return AppTheme.expense }
-        if s.status == .near { return AppTheme.warning }
-        return .white
+        if s.isOver { return DSColor.expense }
+        if s.status == .near { return DSColor.warning }
+        return DSColor.healthy
     }
 
     private func statusColor(_ status: BudgetService.BudgetStatus?) -> Color {
         switch status {
-        case .near: return AppTheme.warning
-        case .over: return AppTheme.expense
-        default:    return AppTheme.budgetHealthy
+        case .near: return DSColor.warning
+        case .over: return DSColor.expense
+        default:    return DSColor.healthy
         }
+    }
+
+    /// 预算主卡背景：UI优化 — 根据设计稿使用深色渐变背景
+    private var heroBackground: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: AppRadius.xlarge, style: .continuous)
+                .fill(DSColor.heroCardDark)
+            RoundedRectangle(cornerRadius: AppRadius.xlarge, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [DSColor.healthy.opacity(0.2), .clear],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+        }
+        .shadow(color: DSColor.healthy.opacity(0.15), radius: 20, x: 0, y: 8)
     }
 
     // MARK: - 今日可用（视觉重点）
@@ -348,7 +358,7 @@ private struct BudgetContent: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: AppRadius.card)
-                .fill(AppTheme.cardBackground)
+                .fill(DSColor.cardBackground)
                 .shadow(color: .black.opacity(0.05), radius: 10, y: 3)
         )
     }
@@ -364,9 +374,9 @@ private struct BudgetContent: View {
     }
 
     private func dailyValueColor(_ s: BudgetService.MonthSummary) -> Color {
-        if s.isOver { return AppTheme.expense }
-        if s.status == .near { return AppTheme.warning }
-        return AppTheme.budgetHealthy
+        if s.isOver { return DSColor.expense }
+        if s.status == .near { return DSColor.warning }
+        return DSColor.healthy
     }
 
     private func caption(for s: BudgetService.MonthSummary) -> String {
@@ -386,7 +396,7 @@ private struct BudgetContent: View {
             statCard(
                 title: "本月支出",
                 value: "¥\(DateFormatters.money(s.expense))",
-                color: AppTheme.expense,
+                color: DSColor.expense,
                 icon: "arrow.down",
                 caption: "\(BudgetService.monthTitle(monthKey))累计"
             )
@@ -428,7 +438,7 @@ private struct BudgetContent: View {
         .padding(AppSpacing.l)
         .background(
             RoundedRectangle(cornerRadius: AppRadius.card)
-                .fill(AppTheme.cardBackground)
+                .fill(DSColor.cardBackground)
                 .shadow(color: .black.opacity(0.05), radius: 10, y: 3)
         )
     }
@@ -443,13 +453,13 @@ private struct BudgetContent: View {
             Spacer()
             Text("¥\(DateFormatters.money(s.income))")
                 .font(.subheadline.weight(.semibold))
-                .foregroundStyle(AppTheme.income)
+                .foregroundStyle(DSColor.income)
         }
         .padding(.horizontal, AppSpacing.l)
         .padding(.vertical, AppSpacing.m)
         .background(
             RoundedRectangle(cornerRadius: AppRadius.card)
-                .fill(AppTheme.cardBackground)
+                .fill(DSColor.cardBackground)
                 .shadow(color: .black.opacity(0.05), radius: 10, y: 3)
         )
     }
@@ -467,8 +477,14 @@ private struct BudgetContent: View {
                 .frame(height: 52)
                 .background(
                     RoundedRectangle(cornerRadius: AppRadius.input + 4)
-                        .fill(AppTheme.budgetHealthy)
-                        .shadow(color: AppTheme.budgetHealthy.opacity(0.3), radius: 8, y: 4)
+                        .fill(
+                            LinearGradient(
+                                colors: [DSColor.healthy, DSColor.primary],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .shadow(color: DSColor.healthy.opacity(0.3), radius: 8, y: 4)
                 )
         }
         .buttonStyle(.plain)
@@ -480,9 +496,9 @@ private struct BudgetContent: View {
         VStack(spacing: AppSpacing.m) {
             Image(systemName: "target")
                 .font(.system(size: 34))
-                .foregroundStyle(AppTheme.budgetHealthy)
+                .foregroundStyle(DSColor.healthy)
                 .frame(width: 88, height: 88)
-                .background(Circle().fill(AppTheme.budgetHealthy.opacity(0.12)))
+                .background(Circle().fill(DSColor.healthy.opacity(0.12)))
 
             Text(isCurrentMonth ? "设置你的第一个预算" : "该月暂未设置预算")
                 .font(.title3.weight(.semibold))
@@ -505,7 +521,7 @@ private struct BudgetContent: View {
                     .frame(height: 48)
                     .background(
                         RoundedRectangle(cornerRadius: AppRadius.input + 4)
-                            .fill(AppTheme.budgetHealthy)
+                            .fill(DSColor.healthy)
                     )
             }
             .buttonStyle(.plain)
@@ -516,7 +532,7 @@ private struct BudgetContent: View {
         .padding(.horizontal, AppSpacing.l)
         .background(
             RoundedRectangle(cornerRadius: AppRadius.xlarge)
-                .fill(AppTheme.cardBackground)
+                .fill(DSColor.cardBackground)
                 .shadow(color: .black.opacity(0.06), radius: 12, y: 4)
         )
     }
@@ -536,7 +552,7 @@ private struct BudgetContent: View {
                     .padding(AppSpacing.l)
                     .background(
                         RoundedRectangle(cornerRadius: AppRadius.card)
-                            .fill(AppTheme.cardBackground)
+                            .fill(DSColor.cardBackground)
                     )
             } else {
                 VStack(spacing: 0) {
@@ -549,7 +565,7 @@ private struct BudgetContent: View {
                 }
                 .background(
                     RoundedRectangle(cornerRadius: AppRadius.card)
-                        .fill(AppTheme.cardBackground)
+                        .fill(DSColor.cardBackground)
                         .shadow(color: .black.opacity(0.05), radius: 10, y: 3)
                 )
             }
@@ -577,7 +593,7 @@ private struct BudgetContent: View {
                          ? "超支 ¥\(DateFormatters.money(item.remaining))"
                          : "剩余 ¥\(DateFormatters.money(item.remaining))")
                         .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(item.isOver ? AppTheme.expense : .primary)
+                        .foregroundStyle(item.isOver ? DSColor.expense : .primary)
                     Text(BudgetService.percentText(item.ratio))
                         .font(.caption)
                         .foregroundStyle(statusColor(item.status))

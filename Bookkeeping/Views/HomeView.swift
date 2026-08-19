@@ -1,7 +1,7 @@
 import SwiftUI
 import SwiftData
 
-/// 首页（仿鲨鱼记账）：本月收支总览卡 + 快捷记账分类 + 最近流水 + 悬浮「记一笔」
+/// 首页：本月结余总览卡 + 快捷记账分类 + 最近流水 + 悬浮「记一笔」
 ///
 /// 数据源：全部为 @Query 响应式数据，新增 / 编辑 / 删除交易后
 /// 首页自动刷新，不依赖手动刷新、onAppear 或 dismiss 时序。
@@ -26,7 +26,7 @@ struct HomeView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 16) {
+            VStack(spacing: DSpace.lg) {
                 HomeMonthCard(monthKey: monthToken) {
                     showBudgetEdit = true
                 }
@@ -35,9 +35,12 @@ struct HomeView: View {
                 quickRecordSection
                 recentSection
             }
-            .padding()
+            .padding(.horizontal, DSpace.lg)
+            .padding(.top, DSpace.sm)
+            .padding(.bottom, DSpace.xl)
         }
-        .background(AppTheme.background)
+        // UI优化：根据设计稿调整背景色
+        .background(DSColor.background)
         .navigationTitle("账本")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -46,24 +49,40 @@ struct HomeView: View {
                     showRecognition = true
                 } label: {
                     Image(systemName: "text.viewfinder")
+                        .font(.system(size: 18))
                 }
                 .accessibilityLabel("从截图识别记账")
             }
         }
+        // UI优化：根据设计稿调整悬浮按钮样式
         .safeAreaInset(edge: .bottom) {
             Button {
                 preselectCategory = nil
                 showForm = true
             } label: {
-                Label("记一笔", systemImage: "plus")
-                    .font(.headline)
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 32)
-                    .padding(.vertical, 14)
-                    .background(Capsule().fill(AppTheme.gradient))
-                    .shadow(color: AppTheme.primary.opacity(0.4), radius: 8, y: 3)
+                HStack(spacing: 6) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 16, weight: .semibold))
+                    Text("记一笔")
+                        .font(Typography.headline)
+                }
+                .foregroundStyle(DSColor.buttonText)
+                .padding(.horizontal, 28)
+                .padding(.vertical, 14)
+                .background(
+                    Capsule()
+                        .fill(
+                            LinearGradient(
+                                colors: ThemeManager.shared.theme.buttonStyle.gradientColors,
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                )
+                .shadow(color: DSColor.primary.opacity(0.4), radius: 12, y: 6)
             }
-            .padding(.bottom, 6)
+            .buttonStyle(DSScaleButtonStyle())
+            .padding(.bottom, 8)
         }
         .onChange(of: scenePhase) { _, phase in
             // App 在后台跨月后回到前台：更新月份标识，重建月份卡片
@@ -96,31 +115,48 @@ struct HomeView: View {
 
     private var quickRecordSection: some View {
         let expenseCategories = categories.filter { $0.type == .expense }
-        return VStack(alignment: .leading, spacing: 12) {
+        return VStack(alignment: .leading, spacing: DSpace.md) {
             Text("记一笔")
-                .font(.headline)
+                .font(Typography.headline)
+                .foregroundStyle(.primary)
 
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 20) {
+                HStack(spacing: DSpace.xl) {
                     ForEach(expenseCategories) { cat in
                         Button {
-                            preselectCategory = cat
+                            withSmoothAnimation(AppAnimation.spring) {
+                                preselectCategory = cat
+                            }
                             showForm = true
                         } label: {
                             VStack(spacing: 8) {
-                                Image(systemName: cat.icon)
-                                    .font(.system(size: 22))
-                                    .frame(width: 56, height: 56)
-                                    .background(Circle().fill(ColorPalette.color(for: cat.name).opacity(0.15)))
-                                    .foregroundStyle(ColorPalette.color(for: cat.name))
+                                // UI优化：根据设计稿调整分类图标为圆角方形
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                        .fill(
+                                            LinearGradient(
+                                                colors: [
+                                                    ColorPalette.color(for: cat.name).opacity(0.15),
+                                                    ColorPalette.color(for: cat.name).opacity(0.08)
+                                                ],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            )
+                                        )
+                                        .frame(width: 56, height: 56)
+                                    Image(systemName: cat.icon)
+                                        .font(.system(size: 22, weight: .medium))
+                                        .foregroundStyle(ColorPalette.color(for: cat.name))
+                                }
                                 Text(cat.name)
                                     .font(.caption)
-                                    .foregroundStyle(.primary)
+                                    .foregroundStyle(.secondary)
                             }
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(DSScaleButtonStyle())
                     }
                 }
+                .padding(.vertical, 4)
             }
         }
         .cardStyle()
@@ -130,14 +166,18 @@ struct HomeView: View {
 
     private var recentSection: some View {
         let recent = recentTransactions
-        return VStack(alignment: .leading, spacing: 6) {
+        return VStack(alignment: .leading, spacing: 4) {
             Text("最近流水")
-                .font(.headline)
+                .font(Typography.headline)
+                .foregroundStyle(.primary)
 
             if recent.isEmpty {
-                Text("还没有账目，点下方「记一笔」开始")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                DSEmptyView(
+                    icon: "tray",
+                    title: "还没有账目",
+                    message: "点下方「记一笔」开始记录你的第一笔收支。"
+                )
+                .padding(.vertical, DSpace.xs)
             } else {
                 ForEach(Array(recent.enumerated()), id: \.element.id) { index, tx in
                     TransactionRow(transaction: tx)
@@ -145,6 +185,7 @@ struct HomeView: View {
                         .onTapGesture { editingTransaction = tx }
                     if index < recent.count - 1 {
                         Divider()
+                            .padding(.leading, 56)
                     }
                 }
             }
@@ -155,7 +196,8 @@ struct HomeView: View {
 
 // MARK: - 本月总览卡
 
-/// 本月收支总览卡。月份由 monthKey 决定，@Query 谓词在 init 中构建；
+/// 本月结余总览卡：结余大数字 + 收入/支出 + 环比变化 + 预算进度。
+/// 月份由 monthKey 决定，@Query 谓词在 init 中构建；
 /// 由父视图通过 .id(monthKey) 在跨月时重建。
 private struct HomeMonthCard: View {
     let monthKey: String
@@ -165,6 +207,12 @@ private struct HomeMonthCard: View {
 
     /// 本月流水（谓词限定，避免全量加载；@Query 随数据变化自动更新）
     @Query private var monthTransactions: [Transaction]
+
+    /// 上月流水（用于环比计算）
+    @Query private var prevMonthTransactions: [Transaction]
+
+    /// 入场动画标记
+    @State private var appeared = false
 
     init(monthKey: String, onEditBudget: @escaping () -> Void) {
         self.monthKey = monthKey
@@ -176,7 +224,16 @@ private struct HomeMonthCard: View {
             filter: #Predicate<Transaction> { $0.date >= start && $0.date < end },
             sort: [SortDescriptor(\Transaction.date, order: .reverse)]
         )
+        // 上个月区间
+        let cal = Calendar.current
+        let prevStart = cal.date(byAdding: .month, value: -1, to: start) ?? start
+        _prevMonthTransactions = Query(
+            filter: #Predicate<Transaction> { $0.date >= prevStart && $0.date < start },
+            sort: []
+        )
     }
+
+    // MARK: 数值
 
     private var monthExpense: Decimal {
         monthTransactions
@@ -190,29 +247,45 @@ private struct HomeMonthCard: View {
             .reduce(Decimal.zero) { $0 + $1.amount }
     }
 
+    private var balance: Decimal {
+        monthIncome - monthExpense
+    }
+
+    private var prevExpense: Decimal {
+        prevMonthTransactions
+            .filter { $0.type == .expense }
+            .reduce(Decimal.zero) { $0 + $1.amount }
+    }
+
+    private var prevIncome: Decimal {
+        prevMonthTransactions
+            .filter { $0.type == .income }
+            .reduce(Decimal.zero) { $0 + $1.amount }
+    }
+
+    private var prevBalance: Decimal {
+        prevIncome - prevExpense
+    }
+
+    /// 结余环比变化百分比（上月结余为 0 时无意义，返回 nil）
+    private var balanceChangePercent: Double? {
+        guard prevBalance != 0 else { return nil }
+        let delta = (balance - prevBalance) as NSDecimalNumber
+        let base = (prevBalance as NSDecimalNumber).doubleValue
+        return delta.doubleValue / abs(base) * 100
+    }
+
     private var currentBudget: Budget? {
         budgets.first { $0.month == monthKey }
     }
 
+    // MARK: 视图
+
     var body: some View {
-        let balance = monthIncome - monthExpense
-        return VStack(alignment: .leading, spacing: 14) {
-            Text(DateFormatters.monthTitle(Date()))
-                .font(.subheadline)
-                .foregroundStyle(.white.opacity(0.85))
-
-            Text("本月支出")
-                .font(.caption)
-                .foregroundStyle(.white.opacity(0.8))
-            Text("¥\(DateFormatters.money(monthExpense))")
-                .font(.system(size: 42, weight: .bold))
-                .foregroundStyle(.white)
-
-            HStack {
-                summaryItem("本月收入", value: monthIncome)
-                Spacer()
-                summaryItem("结余", value: balance)
-            }
+        VStack(alignment: .leading, spacing: DSpace.lg) {
+            headerRow
+            balanceRow
+            incomeExpenseRow
 
             if let budget = currentBudget {
                 budgetSection(budget: budget)
@@ -220,26 +293,111 @@ private struct HomeMonthCard: View {
                 noBudgetSection
             }
         }
-        .padding(20)
+        .padding(DSpace.xl)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(AppTheme.gradient)
-        )
-    }
-
-    private func summaryItem(_ title: String, value: Decimal) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.white.opacity(0.8))
-            Text("¥\(DateFormatters.money(value))")
-                .font(.headline)
-                .foregroundStyle(.white)
+        // UI优化：根据设计稿调整为深色卡片背景
+        .background(heroBackground)
+        .onAppear {
+            withAnimation(AppAnimation.hero) { appeared = true }
         }
     }
 
-    @ViewBuilder
+    /// 顶部：月份 + 环比标签
+    private var headerRow: some View {
+        HStack(alignment: .center) {
+            Text(DateFormatters.monthTitle(Date()))
+                .font(Typography.subheadline)
+                // UI优化：深色卡片上文字使用白色
+                .foregroundStyle(.white.opacity(0.7))
+            Spacer()
+            if let pct = balanceChangePercent {
+                changeChip(percent: pct)
+            }
+        }
+    }
+
+    /// 环比标签：↑ 比上月增长 x% / ↓ 比上月下降 x%
+    private func changeChip(percent: Double) -> some View {
+        let up = percent >= 0
+        let value = Int(abs(percent).rounded())
+        let color = up ? DSColor.income : DSColor.expense
+        return HStack(spacing: 4) {
+            Image(systemName: up ? "arrow.up.right" : "arrow.down.right")
+                .font(.system(size: 10, weight: .bold))
+            Text(up ? "比上月增长 \(value)%" : "比上月下降 \(value)%")
+                .font(.caption.weight(.semibold))
+        }
+        .foregroundStyle(color)
+        .padding(.horizontal, DSpace.md)
+        .padding(.vertical, 5)
+        .background(Capsule().fill(color.opacity(0.2)))
+        .transition(.scale.combined(with: .opacity))
+    }
+
+    /// 结余大数字：页面视觉焦点
+    private var balanceRow: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("本月支出")
+                .font(.caption)
+                // UI优化：深色卡片上文字使用白色
+                .foregroundStyle(.white.opacity(0.7))
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                Text("¥")
+                    .font(.system(size: 24, weight: .semibold, design: .rounded))
+                    .foregroundStyle(.white)
+                Text(DateFormatters.money(abs(balance)))
+                    .font(Typography.moneyHero)
+                    .foregroundStyle(.white)
+                    .contentTransition(.numericText())
+                    .minimumScaleFactor(0.6)
+                    .lineLimit(1)
+            }
+            .opacity(appeared ? 1 : 0)
+            .offset(y: appeared ? 0 : 10)
+            .animation(AppAnimation.hero, value: appeared)
+        }
+    }
+
+    /// 收入 / 支出分列
+    private var incomeExpenseRow: some View {
+        HStack(alignment: .top, spacing: 0) {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 4) {
+                    Image(systemName: "arrow.down.left")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(DSColor.income.opacity(0.9))
+                    Text("预算剩余")
+                        .font(Typography.caption)
+                        .foregroundStyle(.white.opacity(0.6))
+                }
+                Text("¥\(DateFormatters.money(monthIncome - monthExpense))")
+                    .font(Typography.moneyTitle)
+                    .foregroundStyle(.white)
+                    .contentTransition(.numericText())
+                    .minimumScaleFactor(0.6)
+                    .lineLimit(1)
+            }
+            Spacer()
+            VStack(alignment: .trailing, spacing: 4) {
+                HStack(spacing: 4) {
+                    Image(systemName: "arrow.up.right")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(DSColor.expense.opacity(0.9))
+                    Text("日常支出")
+                        .font(Typography.caption)
+                        .foregroundStyle(.white.opacity(0.6))
+                }
+                Text("¥\(DateFormatters.money(monthExpense))")
+                    .font(Typography.moneyTitle)
+                    .foregroundStyle(.white)
+                    .contentTransition(.numericText())
+                    .minimumScaleFactor(0.6)
+                    .lineLimit(1)
+            }
+        }
+    }
+
+    /// 含预算时的进度区
     private func budgetSection(budget: Budget) -> some View {
         let spent = monthExpense
         let ratio = budget.amount > 0 ? BudgetService.double(spent / budget.amount) : 0
@@ -247,57 +405,53 @@ private struct HomeMonthCard: View {
         let over = remaining < 0
         let days = BudgetService.remainingDays(in: monthKey)
         let daily: Decimal? = (remaining > 0 && days > 0) ? remaining / Decimal(days) : nil
+        let barColor = over ? DSColor.expense : (statusColor(ratio) == .near ? DSColor.warning : DSColor.healthy)
 
-        VStack(alignment: .leading, spacing: 8) {
+        return VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text("本月预算")
                     .font(.caption)
-                    .foregroundStyle(.white.opacity(0.8))
+                    .foregroundStyle(.white.opacity(0.6))
                 Spacer()
                 Text(BudgetService.percentText(ratio))
                     .font(.caption.weight(.semibold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(barColor)
             }
 
-            HStack(alignment: .firstTextBaseline) {
-                Text("¥\(DateFormatters.money(budget.amount))")
-                    .font(.title3.bold())
-                    .foregroundStyle(.white)
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    Capsule().fill(.white.opacity(0.15))
+                    Capsule()
+                        .fill(barColor)
+                        .frame(width: max(geo.size.width * CGFloat(min(ratio, 1)), 0))
+                }
+            }
+            .frame(height: 8)
+
+            HStack(spacing: 8) {
+                Text(over
+                     ? "已超支 ¥\(DateFormatters.money(-remaining))"
+                     : "剩余 ¥\(DateFormatters.money(remaining))")
+                    .font(.caption)
+                    .foregroundStyle(over ? DSColor.expense : .white.opacity(0.6))
                 Spacer()
+                if let daily {
+                    Text("今日建议 ≤ ¥\(DateFormatters.money(daily))")
+                        .font(.caption2)
+                        .foregroundStyle(.white.opacity(0.4))
+                }
+                // UI优化：预算管理按钮在深色卡片上
                 Button {
                     onEditBudget()
                 } label: {
                     Text("管理")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.white)
-                        .padding(.horizontal, 12)
+                        .padding(.horizontal, 10)
                         .padding(.vertical, 5)
-                        .background(Capsule().fill(.white.opacity(0.25)))
+                        .background(Capsule().fill(.white.opacity(0.2)))
                 }
-            }
-
-            GeometryReader { geo in
-                ZStack(alignment: .leading) {
-                    Capsule().fill(.white.opacity(0.3))
-                    Capsule()
-                        .fill(over ? AppTheme.expense : Color.white)
-                        .frame(width: geo.size.width * CGFloat(min(ratio, 1)))
-                }
-            }
-            .frame(height: 8)
-
-            HStack {
-                Text(over
-                     ? "已超支 ¥\(DateFormatters.money(-remaining))"
-                     : "剩余 ¥\(DateFormatters.money(remaining))")
-                    .font(.caption)
-                    .foregroundStyle(.white.opacity(0.9))
-                Spacer()
-                if let daily {
-                    Text("今日建议 ≤ ¥\(DateFormatters.money(daily))")
-                        .font(.caption)
-                        .foregroundStyle(.white.opacity(0.9))
-                }
+                .buttonStyle(.plain)
             }
         }
     }
@@ -308,22 +462,48 @@ private struct HomeMonthCard: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text("本月预算")
                     .font(.caption)
-                    .foregroundStyle(.white.opacity(0.8))
-                Text("暂未设置预算")
-                    .font(.subheadline)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.white.opacity(0.6))
+                Text("设置预算，更从容地掌控每月支出")
+                    .font(.caption2)
+                    .foregroundStyle(.white.opacity(0.4))
             }
             Spacer()
+            // UI优化：设置预算按钮在深色卡片上
             Button {
                 onEditBudget()
             } label: {
-                Text("设置")
+                Text("设置预算")
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.white)
-                    .padding(.horizontal, 12)
+                    .padding(.horizontal, 10)
                     .padding(.vertical, 5)
-                    .background(Capsule().fill(.white.opacity(0.25)))
+                    .background(Capsule().fill(.white.opacity(0.2)))
             }
+            .buttonStyle(.plain)
         }
+    }
+
+    /// 预算超支判定：ratio > 1 超支、≥0.8 接近、否则正常
+    private func statusColor(_ ratio: Double) -> BudgetService.BudgetStatus {
+        if ratio > 1 { return .over }
+        if ratio >= 0.8 { return .near }
+        return .normal
+    }
+
+    /// 卡片背景：UI优化 — 根据设计稿使用深色渐变背景
+    private var heroBackground: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: DRadius.hero, style: .continuous)
+                .fill(DSColor.heroCardDark)
+            RoundedRectangle(cornerRadius: DRadius.hero, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [DSColor.primary.opacity(0.25), .clear],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+        }
+        .shadow(color: DSColor.primary.opacity(0.15), radius: 20, x: 0, y: 8)
     }
 }

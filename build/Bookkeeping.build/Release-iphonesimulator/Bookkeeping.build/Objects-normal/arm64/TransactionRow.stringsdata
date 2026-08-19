@@ -1,0 +1,16 @@
+{
+  "source": "/Users/tempestwang/workspace/accounting/Bookkeeping/Views/TransactionRow.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "·",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 37
+        }
+      }
+    ]
+  },
+  "version": 1
+}

@@ -3,9 +3,13 @@ import SwiftData
 
 @main
 struct BookkeepingApp: App {
+    /// 全局主题管理器（单例：驱动 8 套主题 + 外观模式）
+    @StateObject private var theme = ThemeManager.shared
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
+                .environmentObject(theme)
                 .modelContainer(AppModel.container)
                 // 全 App 用户可见内容固定中文：
                 // - Locale 让 DatePicker / Swift Charts 坐标轴 / 系统组件自动使用中文（月份、星期、日期）；

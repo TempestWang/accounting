@@ -1,0 +1,248 @@
+{
+  "source": "/Users/tempestwang/workspace/accounting/Bookkeeping/Views/StatisticsView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "统计",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 158
+        }
+      },
+      {
+        "comment": "",
+        "key": "财务健康评分",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 219
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 246
+        }
+      },
+      {
+        "comment": "",
+        "key": "良好",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 249
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 273
+        }
+      },
+      {
+        "comment": "",
+        "key": "已超支 ¥%@",
+        "location": {
+          "startingColumn": 25,
+          "startingLine": 354
+        }
+      },
+      {
+        "comment": "",
+        "key": "本月预算",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 328
+        }
+      },
+      {
+        "comment": "",
+        "key": "分类占比",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 395
+        }
+      },
+      {
+        "comment": "",
+        "key": "本期暂无支出",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 400
+        }
+      },
+      {
+        "comment": "",
+        "key": "支出 ¥%@",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 433
+        }
+      },
+      {
+        "comment": "",
+        "key": "金额",
+        "location": {
+          "startingColumn": 43,
+          "startingLine": 407
+        }
+      },
+      {
+        "comment": "",
+        "key": "本期暂无数据",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 516
+        }
+      },
+      {
+        "comment": "",
+        "key": "支出排行",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 476
+        }
+      },
+      {
+        "comment": "",
+        "key": "支出",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 485
+        }
+      },
+      {
+        "comment": "",
+        "key": "收入",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 499
+        }
+      },
+      {
+        "comment": "",
+        "key": "¥%@",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 552
+        }
+      },
+      {
+        "comment": "",
+        "key": "支出趋势",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 584
+        }
+      },
+      {
+        "comment": "",
+        "key": "本月暂无支出",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 588
+        }
+      },
+      {
+        "comment": "",
+        "key": "日期",
+        "location": {
+          "startingColumn": 35,
+          "startingLine": 594
+        }
+      },
+      {
+        "comment": "",
+        "key": "金额",
+        "location": {
+          "startingColumn": 35,
+          "startingLine": 595
+        }
+      },
+      {
+        "comment": "",
+        "key": "日期",
+        "location": {
+          "startingColumn": 35,
+          "startingLine": 600
+        }
+      },
+      {
+        "comment": "",
+        "key": "金额",
+        "location": {
+          "startingColumn": 35,
+          "startingLine": 601
+        }
+      },
+      {
+        "comment": "",
+        "key": "近 6 月收支趋势",
+        "location": {
+          "startingColumn": 37,
+          "startingLine": 670
+        }
+      },
+      {
+        "comment": "",
+        "key": "全年每月收支",
+        "location": {
+          "startingColumn": 63,
+          "startingLine": 670
+        }
+      },
+      {
+        "comment": "",
+        "key": "月份",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 675
+        }
+      },
+      {
+        "comment": "",
+        "key": "金额",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 676
+        }
+      },
+      {
+        "comment": "",
+        "key": "类型",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 678
+        }
+      },
+      {
+        "comment": "",
+        "key": "月份",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 681
+        }
+      },
+      {
+        "comment": "",
+        "key": "金额",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 682
+        }
+      },
+      {
+        "comment": "",
+        "key": "类型",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 684
+        }
+      }
+    ]
+  },
+  "version": 1
+}

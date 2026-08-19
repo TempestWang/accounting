@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 
 /// 预算设置页：大数字输入 + 快捷金额胶囊 + 突出保存按钮，一步完成设置。
+/// UI优化：参考设计稿调整按钮样式
 struct BudgetEditView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
@@ -62,11 +63,13 @@ struct BudgetEditView: View {
                 .padding(.horizontal, AppSpacing.l)
                 .padding(.bottom, AppSpacing.xxxl)
             }
-            .background(AppTheme.budgetBackground)
+            // UI优化：根据设计稿调整背景色
+            .background(DSColor.background)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("取消") { dismiss() }
+                        .foregroundStyle(.secondary)
                 }
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
@@ -90,8 +93,9 @@ struct BudgetEditView: View {
 
     private var amountInput: some View {
         VStack(spacing: AppSpacing.xs) {
+            // UI优化：参考设计稿使用紫色指示条
             Capsule()
-                .fill(AppTheme.budgetGradient)
+                .fill(DSColor.primary)
                 .frame(width: 44, height: 5)
                 .padding(.bottom, AppSpacing.s)
             Text("¥")
@@ -103,13 +107,13 @@ struct BudgetEditView: View {
                 .multilineTextAlignment(.center)
                 .font(.system(size: 56, weight: .bold, design: .rounded))
                 .minimumScaleFactor(0.5)
-                .tint(AppTheme.budgetHealthy)
+                .tint(DSColor.primary)
         }
         .padding(.vertical, AppSpacing.xxl)
         .frame(maxWidth: .infinity)
         .background(
             RoundedRectangle(cornerRadius: AppRadius.xlarge)
-                .fill(AppTheme.cardBackground)
+                .fill(DSColor.cardBackground)
                 .shadow(color: .black.opacity(0.05), radius: 10, y: 3)
         )
     }
@@ -137,11 +141,11 @@ struct BudgetEditView: View {
         } label: {
             Text("¥\(value)")
                 .font(.subheadline.weight(selected ? .semibold : .regular))
-                .foregroundStyle(selected ? .white : .primary)
+                .foregroundStyle(selected ? DSColor.buttonText : .primary)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, AppSpacing.m)
                 .background(
-                    Capsule().fill(selected ? AppTheme.budgetHealthy : Color(.secondarySystemBackground))
+                    Capsule().fill(selected ? DSColor.primary : Color(.secondarySystemBackground))
                 )
         }
         .buttonStyle(.plain)
@@ -162,13 +166,26 @@ struct BudgetEditView: View {
         } label: {
             Text("保存预算")
                 .font(.headline)
-                .foregroundStyle(.white)
+                .foregroundStyle(DSColor.buttonText)
                 .frame(maxWidth: .infinity)
                 .frame(height: 54)
                 .background(
-                    RoundedRectangle(cornerRadius: AppRadius.input + 4)
-                        .fill(canSave ? AppTheme.budgetHealthy : Color(.systemGray4))
-                        .shadow(color: canSave ? AppTheme.budgetHealthy.opacity(0.3) : .clear, radius: 8, y: 4)
+                    canSave
+                        ? AnyView(
+                            RoundedRectangle(cornerRadius: AppRadius.input + 4)
+                                .fill(
+                                    LinearGradient(
+                                        colors: [DSColor.primary, DSColor.purpleGradientEnd],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                                .shadow(color: DSColor.primary.opacity(0.3), radius: 8, y: 4)
+                          )
+                        : AnyView(
+                            RoundedRectangle(cornerRadius: AppRadius.input + 4)
+                                .fill(Color(.systemGray4))
+                          )
                 )
         }
         .buttonStyle(.plain)

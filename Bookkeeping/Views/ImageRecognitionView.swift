@@ -3,6 +3,7 @@ import PhotosUI
 import UIKit
 
 /// 从相册选择付款截图 → OCR → 预填记账表单
+/// UI优化：根据设计稿调整按钮样式
 struct ImageRecognitionView: View {
     @Environment(\.dismiss) private var dismiss
 
@@ -20,21 +21,28 @@ struct ImageRecognitionView: View {
                 PhotosPicker(selection: $pickerItem, matching: .images) {
                     VStack(spacing: 12) {
                         Image(systemName: "photo.on.rectangle.angled")
-                            .font(.system(size: 48))
-                            .foregroundStyle(.blue)
+                            .font(.system(size: 42, weight: .medium))
+                            .foregroundStyle(DSColor.primary)
                         Text("从相册选择付款截图")
-                            .font(.headline)
+                            .font(Typography.headline)
+                            .foregroundStyle(.primary)
                         Text("识别金额、商户、日期并自动填入记账表单")
-                            .font(.caption)
+                            .font(Typography.caption)
                             .foregroundStyle(.secondary)
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 44)
                     .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Color(.secondarySystemBackground))
+                        RoundedRectangle(cornerRadius: DRadius.card, style: .continuous)
+                            .fill(DSColor.cardBackground)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: DRadius.card, style: .continuous)
+                                    .strokeBorder(DSColor.hairline, lineWidth: 0.5)
+                            )
+                            .shadow(color: .black.opacity(0.04), radius: 8, x: 0, y: 2)
                     )
                 }
+                .buttonStyle(DSScaleButtonStyle())
 
                 if isProcessing {
                     ProgressView("正在识别…")
@@ -57,6 +65,7 @@ struct ImageRecognitionView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("关闭") { dismiss() }
+                        .foregroundStyle(.secondary)
                 }
             }
             .onChange(of: pickerItem) { _, item in

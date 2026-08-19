@@ -7,6 +7,7 @@ import SwiftData
 /// - 商户 / 分类 / 日期 / 备注全部可修改；
 /// - 底部固定「放弃 / 保存」；金额非法时保存不可用；
 /// - 保存后才写入正式 Transaction 并删除草稿；放弃则不产生任何账单。
+/// UI优化：根据设计稿调整样式
 struct ConfirmTransactionView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
@@ -57,12 +58,14 @@ struct ConfirmTransactionView: View {
             .padding(.top, AppSpacing.s)
             .padding(.bottom, AppSpacing.l)
         }
-        .background(AppTheme.background)
+        // UI优化：根据设计稿调整背景色
+        .background(DSColor.background)
         .navigationTitle("确认账单")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button("取消") { showDiscardConfirm = true }
+                    .foregroundStyle(.secondary)
             }
         }
         .safeAreaInset(edge: .bottom) { saveBar }
@@ -116,27 +119,31 @@ struct ConfirmTransactionView: View {
 
     // MARK: - 区块
 
-    /// 顶部确认感卡片
+    /// 顶部确认感卡片（UI优化：使用深色渐变背景）
     private var headerCard: some View {
         VStack(alignment: .leading, spacing: AppSpacing.m) {
             HStack {
                 Text("已识别一笔账单")
                     .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.white.opacity(0.85))
+                    .foregroundStyle(.white.opacity(0.8))
                 Spacer()
                 if pending.needsReview {
-                    Text("⚠️ 请核对")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, AppSpacing.m)
-                        .padding(.vertical, 5)
-                        .background(Capsule().fill(.white.opacity(0.25)))
+                    HStack(spacing: 4) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.caption2)
+                        Text("请核对")
+                            .font(.caption.weight(.semibold))
+                    }
+                    .foregroundStyle(DSColor.warning)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                    .background(Capsule().fill(DSColor.warning.opacity(0.2)))
                 }
             }
 
             HStack(alignment: .firstTextBaseline, spacing: AppSpacing.xs) {
                 Text("¥")
-                    .font(.system(size: 24, weight: .semibold))
+                    .font(.system(size: 24, weight: .semibold, design: .rounded))
                     .foregroundStyle(.white)
                 Text(validAmount.map(DateFormatters.money) ?? "0.00")
                     .font(.system(size: 40, weight: .bold, design: .rounded))
@@ -148,25 +155,39 @@ struct ConfirmTransactionView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(merchant.isEmpty ? "商户未识别" : merchant)
                     .font(.callout.weight(.medium))
-                    .foregroundStyle(.white.opacity(0.95))
+                    .foregroundStyle(.white)
                 Text([categoryName.isEmpty ? "分类待选择" : categoryName,
                       DateFormatters.dayHeader(date)]
                     .joined(separator: " · "))
                     .font(.caption)
-                    .foregroundStyle(.white.opacity(0.75))
+                    .foregroundStyle(.white.opacity(0.6))
             }
 
             Text("识别结果仅供参考，请核对后保存")
                 .font(.caption2)
-                .foregroundStyle(.white.opacity(0.7))
+                .foregroundStyle(.white.opacity(0.4))
         }
         .padding(AppSpacing.xl)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: AppRadius.xlarge)
-                .fill(AppTheme.budgetGradient)
-                .shadow(color: AppTheme.budgetHealthy.opacity(0.25), radius: 14, y: 6)
-        )
+        // UI优化：使用深色渐变背景
+        .background(headerBackground)
+    }
+
+    /// 头部卡背景：UI优化 — 深色渐变
+    private var headerBackground: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: AppRadius.xlarge, style: .continuous)
+                .fill(DSColor.heroCardDark)
+            RoundedRectangle(cornerRadius: AppRadius.xlarge, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [DSColor.primary.opacity(0.3), .clear],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+        }
+        .shadow(color: DSColor.primary.opacity(0.15), radius: 20, x: 0, y: 8)
     }
 
     /// 原始截图（可点击查看原图）
@@ -191,7 +212,7 @@ struct ConfirmTransactionView: View {
         .padding(AppSpacing.l)
         .background(
             RoundedRectangle(cornerRadius: AppRadius.card)
-                .fill(AppTheme.cardBackground)
+                .fill(DSColor.cardBackground)
                 .shadow(color: .black.opacity(0.05), radius: 10, y: 3)
         )
     }
@@ -199,11 +220,28 @@ struct ConfirmTransactionView: View {
     /// 金额编辑卡
     private var amountCard: some View {
         VStack(spacing: AppSpacing.m) {
-            Picker("类型", selection: $type) {
-                Text("支出").tag(TransactionType.expense)
-                Text("收入").tag(TransactionType.income)
+            // UI优化：参考设计稿使用自定义分段控件
+            HStack(spacing: 0) {
+                ForEach([TransactionType.expense, TransactionType.income], id: \.self) { t in
+                    Button {
+                        withSmoothAnimation(AppAnimation.spring) {
+                            type = t
+                        }
+                    } label: {
+                        Text(t == .expense ? "支出" : "收入")
+                            .font(.subheadline.weight(type == t ? .semibold : .regular))
+                            .foregroundStyle(type == t ? DSColor.buttonText : .secondary)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 10)
+                            .background(
+                                Capsule().fill(type == t ? DSColor.primary : .clear)
+                            )
+                    }
+                    .buttonStyle(.plain)
+                }
             }
-            .pickerStyle(.segmented)
+            .padding(3)
+            .background(Capsule().fill(DSColor.secondaryFill))
 
             TextField("0.00", text: $amountText)
                 .focused($amountFocused)
@@ -211,22 +249,16 @@ struct ConfirmTransactionView: View {
                 .multilineTextAlignment(.center)
                 .font(.system(size: 44, weight: .bold, design: .rounded))
                 .minimumScaleFactor(0.5)
-                .tint(AppTheme.budgetHealthy)
-                .overlay(alignment: .leading) {
-                    Text("¥")
-                        .font(.system(size: 28, weight: .semibold))
-                        .foregroundStyle(.secondary)
-                        .offset(x: -40)
-                }
+                .tint(DSColor.primary)
 
             Text(validAmount == nil ? "请输入大于 0 的金额" : "金额将计入本月\(type == .expense ? "支出" : "收入")")
                 .font(.caption)
-                .foregroundStyle(validAmount == nil ? AppTheme.expense : .secondary)
+                .foregroundStyle(validAmount == nil ? DSColor.expense : .secondary)
         }
         .padding(AppSpacing.xl)
         .background(
             RoundedRectangle(cornerRadius: AppRadius.card)
-                .fill(AppTheme.cardBackground)
+                .fill(DSColor.cardBackground)
                 .shadow(color: .black.opacity(0.05), radius: 10, y: 3)
         )
     }
@@ -265,7 +297,7 @@ struct ConfirmTransactionView: View {
         .padding(.vertical, AppSpacing.xs)
         .background(
             RoundedRectangle(cornerRadius: AppRadius.card)
-                .fill(AppTheme.cardBackground)
+                .fill(DSColor.cardBackground)
                 .shadow(color: .black.opacity(0.05), radius: 10, y: 3)
         )
     }
@@ -282,7 +314,9 @@ struct ConfirmTransactionView: View {
     }
 
     private var fieldDivider: some View {
-        Divider()
+        Rectangle()
+            .fill(DSColor.hairline)
+            .frame(height: 0.5)
     }
 
     private var dateSection: some View {
@@ -336,7 +370,7 @@ struct ConfirmTransactionView: View {
                     .frame(width: 84, height: 52)
                     .background(
                         RoundedRectangle(cornerRadius: AppRadius.input + 4)
-                            .fill(Color(.secondarySystemBackground))
+                            .fill(DSColor.secondaryFill)
                     )
             }
             .buttonStyle(.plain)
@@ -346,13 +380,26 @@ struct ConfirmTransactionView: View {
             } label: {
                 Text("保存账单")
                     .font(.headline)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(DSColor.buttonText)
                     .frame(maxWidth: .infinity)
                     .frame(height: 52)
                     .background(
-                        RoundedRectangle(cornerRadius: AppRadius.input + 4)
-                            .fill(validAmount == nil ? Color(.systemGray4) : AppTheme.budgetHealthy)
-                            .shadow(color: validAmount == nil ? .clear : AppTheme.budgetHealthy.opacity(0.3), radius: 8, y: 4)
+                        validAmount == nil
+                            ? AnyView(
+                                RoundedRectangle(cornerRadius: AppRadius.input + 4)
+                                    .fill(DSColor.secondaryFill)
+                              )
+                            : AnyView(
+                                RoundedRectangle(cornerRadius: AppRadius.input + 4)
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [DSColor.primary, DSColor.purpleGradientEnd],
+                                            startPoint: .leading,
+                                            endPoint: .trailing
+                                        )
+                                    )
+                                    .shadow(color: DSColor.primary.opacity(0.3), radius: 8, y: 4)
+                              )
                     )
             }
             .buttonStyle(.plain)
@@ -420,16 +467,18 @@ private struct CategoryPickerSheet: View {
                         dismiss()
                     } label: {
                         VStack(spacing: 6) {
-                            Image(systemName: cat.icon)
-                                .font(.system(size: 20))
-                                .frame(width: 48, height: 48)
-                                .background(
-                                    Circle().fill(
+                            // UI优化：参考设计稿使用圆角方形图标
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                    .fill(
                                         ColorPalette.color(for: cat.name)
                                             .opacity(selectedName == cat.name ? 0.35 : 0.12)
                                     )
-                                )
-                                .foregroundStyle(ColorPalette.color(for: cat.name))
+                                    .frame(width: 48, height: 48)
+                                Image(systemName: cat.icon)
+                                    .font(.system(size: 20))
+                                    .foregroundStyle(ColorPalette.color(for: cat.name))
+                            }
                             Text(cat.name)
                                 .font(.caption)
                                 .foregroundStyle(.primary)
@@ -440,12 +489,13 @@ private struct CategoryPickerSheet: View {
             }
             .padding(AppSpacing.l)
         }
-        .background(AppTheme.background)
+        .background(DSColor.background)
         .navigationTitle("选择分类")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button("关闭") { dismiss() }
+                    .foregroundStyle(.secondary)
             }
         }
     }

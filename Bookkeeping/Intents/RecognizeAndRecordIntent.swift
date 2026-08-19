@@ -57,7 +57,10 @@ struct RecognizeAndRecordIntent: AppIntent {
 
         let dialog: String
         if let amount = parsed.amount, amount > 0 {
-            dialog = "已识别账单 ¥\(DateFormatters.money(amount))，已打开「账本」，请在「记一笔」页面核对后保存。"
+            // DateFormatters 的静态 Formatter 非线程安全，且 AppIntents 不保证 perform()
+            // 在主线程执行 → 显式切回主线程格式化金额
+            let formattedAmount = await MainActor.run { DateFormatters.money(amount) }
+            dialog = "已识别账单 ¥\(formattedAmount)，已打开「账本」，请在「记一笔」页面核对后保存。"
         } else {
             dialog = "已创建待确认账单（金额未识别），已打开「账本」，请在「记一笔」页面补充金额后保存。"
         }

@@ -29,6 +29,13 @@ enum DateFormatters {
         return f
     }()
 
+    private static let shortTimeFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "zh_CN")
+        f.dateFormat = "HH:mm"
+        return f
+    }()
+
     private static let monthShortFormatter: DateFormatter = {
         let f = DateFormatter()
         f.locale = Locale(identifier: "zh_CN")
@@ -58,6 +65,11 @@ enum DateFormatters {
     /// 月份短标题，形如 "8月"，用于图表横坐标（近 6 月收支趋势 / 全年每月收支）
     static func monthShortTitle(_ date: Date) -> String {
         monthShortFormatter.string(from: date)
+    }
+
+    /// 短时间，形如 "12:30"，用于列表行的辅助信息
+    static func shortTime(_ date: Date) -> String {
+        shortTimeFormatter.string(from: date)
     }
 
     /// 列表分组标题：今天 / 昨天 / 8月5日 星期三
