@@ -127,6 +127,12 @@ struct ThemeColors: Equatable {
     let heroCard: Color
     let heroGlow: Color
 
+    // 英雄卡上的文字层（英雄卡在全部主题中恒为深色系，文字固定白色系保证对比度）
+    let heroTextPrimary: Color
+    let heroTextSecondary: Color
+    let heroTextTertiary: Color
+    let heroHairline: Color
+
     // 按钮文字层（主色填充 / 渐变填充上的文字色）
     let buttonText: Color
 
@@ -189,6 +195,11 @@ struct ThemeColors: Equatable {
             iconColor: dyn(\.primary, \.primary),
             heroCard: dyn(\.heroCard, \.heroCard),
             heroGlow: dyn(\.heroGlow, \.heroGlow),
+            // 英雄卡文字：固定白色系（英雄卡恒为深色）
+            heroTextPrimary: Color.white.opacity(0.92),
+            heroTextSecondary: Color.white.opacity(0.60),
+            heroTextTertiary: Color.white.opacity(0.35),
+            heroHairline: Color.white.opacity(0.18),
             buttonText: dyn(\.buttonText, \.buttonText),
             income: Color(uiColor: UIColor { traits in
                 traits.userInterfaceStyle == .dark ? semanticDark[0].uiColor : semanticLight[0].uiColor

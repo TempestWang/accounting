@@ -189,7 +189,7 @@ private struct BudgetContent: View {
             HStack {
                 Text("\(BudgetService.monthTitle(monthKey)) · 本月预算")
                     .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(DSColor.heroTextSecondary)
                 Spacer()
                 statusPill(s)
             }
@@ -198,14 +198,14 @@ private struct BudgetContent: View {
             VStack(alignment: .leading, spacing: AppSpacing.xs) {
                 Text("本月预算")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(DSColor.heroTextSecondary)
                 HStack(alignment: .firstTextBaseline, spacing: AppSpacing.xs) {
                     Text("¥")
                         .font(.system(size: 26, weight: .semibold, design: .rounded))
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(DSColor.heroTextPrimary)
                     Text(DateFormatters.money(s.budget?.amount ?? 0))
                         .font(.system(size: 40, weight: .bold, design: .rounded))
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(DSColor.heroTextPrimary)
                         .contentTransition(.numericText(value: BudgetService.double(s.budget?.amount ?? 0)))
                         .minimumScaleFactor(0.6)
                         .lineLimit(1)
@@ -216,7 +216,7 @@ private struct BudgetContent: View {
             VStack(spacing: AppSpacing.m) {
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
-                        Capsule().fill(DSColor.track)
+                        Capsule().fill(DSColor.heroHairline)
                         Capsule()
                             .fill(progressColor(s))
                             .frame(width: max(geo.size.width * CGFloat(min(s.ratio, 1.0)) * (barRevealed ? 1 : 0), barRevealed && s.ratio > 0 ? 6 : 0))
@@ -231,12 +231,12 @@ private struct BudgetContent: View {
                 HStack(spacing: 0) {
                     heroStat(title: "已使用", value: BudgetService.percentText(s.ratio), color: progressColor(s))
                     heroDivider
-                    heroStat(title: "已支出", value: "¥\(DateFormatters.money(s.expense))", color: .primary)
+                    heroStat(title: "已支出", value: "¥\(DateFormatters.money(s.expense))", color: .white)
                     heroDivider
                     if s.isOver {
                         heroOverStat(title: "已超支", value: "¥\(DateFormatters.money(-s.remaining))")
                     } else {
-                        heroStat(title: "剩余", value: "¥\(DateFormatters.money(s.remaining))", color: .primary)
+                        heroStat(title: "剩余", value: "¥\(DateFormatters.money(s.remaining))", color: .white)
                     }
                 }
             }
@@ -251,7 +251,7 @@ private struct BudgetContent: View {
         VStack(spacing: 2) {
             Text(title)
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(DSColor.heroTextSecondary)
             Text(value)
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(color)
@@ -265,7 +265,7 @@ private struct BudgetContent: View {
         VStack(spacing: 2) {
             Text(title)
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(DSColor.heroTextSecondary)
             Text(value)
                 .font(.subheadline.weight(.bold))
                 .foregroundStyle(DSColor.expense)
@@ -277,7 +277,7 @@ private struct BudgetContent: View {
 
     private var heroDivider: some View {
         Rectangle()
-            .fill(DSColor.hairline)
+            .fill(DSColor.heroHairline)
             .frame(width: 1, height: 28)
     }
 

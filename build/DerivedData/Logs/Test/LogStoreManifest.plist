@@ -6,317 +6,6 @@
 	<integer>12</integer>
 	<key>logs</key>
 	<dict>
-		<key>0505D909-2EB3-4C49-84C3-A5E72A14471C</key>
-		<dict>
-			<key>auxiliaryLogUniqueIdentifier</key>
-			<string>F490CA77-1378-4A47-B4CA-108F5FB92F24</string>
-			<key>auxiliaryObservable</key>
-			<dict>
-				<key>highLevelStatus</key>
-				<string>S</string>
-				<key>totalNumberOfAnalyzerIssues</key>
-				<integer>0</integer>
-				<key>totalNumberOfErrors</key>
-				<integer>0</integer>
-				<key>totalNumberOfTestFailures</key>
-				<integer>0</integer>
-				<key>totalNumberOfWarnings</key>
-				<integer>0</integer>
-			</dict>
-			<key>className</key>
-			<string>IDESchemeActionsInvocationRecord</string>
-			<key>documentTypeString</key>
-			<string>&lt;nil&gt;</string>
-			<key>domainType</key>
-			<string>com.apple.dt.unit.cocoaUnitTest</string>
-			<key>fileName</key>
-			<string>Test-ThemeUITests-2026.08.18_23-05-58-+0800.xcresult</string>
-			<key>hasAuxiliaryLog</key>
-			<true/>
-			<key>hasCoverageData</key>
-			<true/>
-			<key>hasPrimaryLog</key>
-			<true/>
-			<key>primaryObservable</key>
-			<dict>
-				<key>highLevelStatus</key>
-				<string>T</string>
-				<key>totalCodeCoverage</key>
-				<real>0.14874999999999999</real>
-				<key>totalNumberOfAnalyzerIssues</key>
-				<integer>0</integer>
-				<key>totalNumberOfErrors</key>
-				<integer>0</integer>
-				<key>totalNumberOfTestFailures</key>
-				<integer>1</integer>
-				<key>totalNumberOfWarnings</key>
-				<integer>0</integer>
-			</dict>
-			<key>schemeIdentifier-containerName</key>
-			<string>Bookkeeping project</string>
-			<key>schemeIdentifier-schemeName</key>
-			<string>ThemeUITests</string>
-			<key>schemeIdentifier-sharedScheme</key>
-			<integer>1</integer>
-			<key>signature</key>
-			<string>Test ThemeUITests</string>
-			<key>timeStartedRecording</key>
-			<real>808758358.14980602</real>
-			<key>timeStoppedRecording</key>
-			<real>808758377.60496795</real>
-			<key>title</key>
-			<string>Test ThemeUITests</string>
-			<key>uniqueIdentifier</key>
-			<string>0505D909-2EB3-4C49-84C3-A5E72A14471C</string>
-		</dict>
-		<key>3157DE7E-3491-496D-99AD-94CAB29EB5FA</key>
-		<dict>
-			<key>auxiliaryLogUniqueIdentifier</key>
-			<string>FB0A7310-25AA-423C-BAF0-BFDFC2A30272</string>
-			<key>auxiliaryObservable</key>
-			<dict>
-				<key>highLevelStatus</key>
-				<string>E</string>
-				<key>totalNumberOfAnalyzerIssues</key>
-				<integer>0</integer>
-				<key>totalNumberOfErrors</key>
-				<integer>31</integer>
-				<key>totalNumberOfTestFailures</key>
-				<integer>0</integer>
-				<key>totalNumberOfWarnings</key>
-				<integer>3</integer>
-			</dict>
-			<key>className</key>
-			<string>IDESchemeActionsInvocationRecord</string>
-			<key>documentTypeString</key>
-			<string>&lt;nil&gt;</string>
-			<key>domainType</key>
-			<string>com.apple.dt.unit.cocoaUnitTest</string>
-			<key>fileName</key>
-			<string>Test-ThemeUITests-2026.08.18_23-03-53-+0800.xcresult</string>
-			<key>hasAuxiliaryLog</key>
-			<true/>
-			<key>hasCoverageData</key>
-			<true/>
-			<key>hasPrimaryLog</key>
-			<true/>
-			<key>primaryObservable</key>
-			<dict>
-				<key>highLevelStatus</key>
-				<string>E</string>
-				<key>totalNumberOfAnalyzerIssues</key>
-				<integer>0</integer>
-				<key>totalNumberOfErrors</key>
-				<integer>32</integer>
-				<key>totalNumberOfTestFailures</key>
-				<integer>0</integer>
-				<key>totalNumberOfWarnings</key>
-				<integer>3</integer>
-			</dict>
-			<key>schemeIdentifier-containerName</key>
-			<string>Bookkeeping project</string>
-			<key>schemeIdentifier-schemeName</key>
-			<string>ThemeUITests</string>
-			<key>schemeIdentifier-sharedScheme</key>
-			<integer>1</integer>
-			<key>signature</key>
-			<string>Test ThemeUITests</string>
-			<key>timeStartedRecording</key>
-			<real>808758233.20984602</real>
-			<key>timeStoppedRecording</key>
-			<real>808758236.62228</real>
-			<key>title</key>
-			<string>Test ThemeUITests</string>
-			<key>uniqueIdentifier</key>
-			<string>3157DE7E-3491-496D-99AD-94CAB29EB5FA</string>
-		</dict>
-		<key>52D775BE-580F-451A-B7C0-E69FCA80D632</key>
-		<dict>
-			<key>auxiliaryLogUniqueIdentifier</key>
-			<string>6453F1CF-70A7-403F-A8D7-C3359FE19CF0</string>
-			<key>auxiliaryObservable</key>
-			<dict>
-				<key>highLevelStatus</key>
-				<string>E</string>
-				<key>totalNumberOfAnalyzerIssues</key>
-				<integer>0</integer>
-				<key>totalNumberOfErrors</key>
-				<integer>3</integer>
-				<key>totalNumberOfTestFailures</key>
-				<integer>0</integer>
-				<key>totalNumberOfWarnings</key>
-				<integer>0</integer>
-			</dict>
-			<key>className</key>
-			<string>IDESchemeActionsInvocationRecord</string>
-			<key>documentTypeString</key>
-			<string>&lt;nil&gt;</string>
-			<key>domainType</key>
-			<string>com.apple.dt.unit.cocoaUnitTest</string>
-			<key>fileName</key>
-			<string>Test-ThemeUITests-2026.08.18_23-03-38-+0800.xcresult</string>
-			<key>hasAuxiliaryLog</key>
-			<true/>
-			<key>hasCoverageData</key>
-			<true/>
-			<key>hasPrimaryLog</key>
-			<true/>
-			<key>primaryObservable</key>
-			<dict>
-				<key>highLevelStatus</key>
-				<string>E</string>
-				<key>totalNumberOfAnalyzerIssues</key>
-				<integer>0</integer>
-				<key>totalNumberOfErrors</key>
-				<integer>4</integer>
-				<key>totalNumberOfTestFailures</key>
-				<integer>0</integer>
-				<key>totalNumberOfWarnings</key>
-				<integer>0</integer>
-			</dict>
-			<key>schemeIdentifier-containerName</key>
-			<string>Bookkeeping project</string>
-			<key>schemeIdentifier-schemeName</key>
-			<string>ThemeUITests</string>
-			<key>schemeIdentifier-sharedScheme</key>
-			<integer>1</integer>
-			<key>signature</key>
-			<string>Test ThemeUITests</string>
-			<key>timeStartedRecording</key>
-			<real>808758218.81700802</real>
-			<key>timeStoppedRecording</key>
-			<real>808758222.702595</real>
-			<key>title</key>
-			<string>Test ThemeUITests</string>
-			<key>uniqueIdentifier</key>
-			<string>52D775BE-580F-451A-B7C0-E69FCA80D632</string>
-		</dict>
-		<key>6CA8648F-9AEC-4BDE-AE48-318D351087B4</key>
-		<dict>
-			<key>auxiliaryLogUniqueIdentifier</key>
-			<string>C5FE6963-8333-4823-BE83-EC9EF00C03CF</string>
-			<key>auxiliaryObservable</key>
-			<dict>
-				<key>highLevelStatus</key>
-				<string>S</string>
-				<key>totalNumberOfAnalyzerIssues</key>
-				<integer>0</integer>
-				<key>totalNumberOfErrors</key>
-				<integer>0</integer>
-				<key>totalNumberOfTestFailures</key>
-				<integer>0</integer>
-				<key>totalNumberOfWarnings</key>
-				<integer>0</integer>
-			</dict>
-			<key>className</key>
-			<string>IDESchemeActionsInvocationRecord</string>
-			<key>documentTypeString</key>
-			<string>&lt;nil&gt;</string>
-			<key>domainType</key>
-			<string>com.apple.dt.unit.cocoaUnitTest</string>
-			<key>fileName</key>
-			<string>Test-Bookkeeping-2026.08.18_23-09-29-+0800.xcresult</string>
-			<key>hasAuxiliaryLog</key>
-			<true/>
-			<key>hasCoverageData</key>
-			<true/>
-			<key>hasPrimaryLog</key>
-			<true/>
-			<key>primaryObservable</key>
-			<dict>
-				<key>highLevelStatus</key>
-				<string>S</string>
-				<key>totalCodeCoverage</key>
-				<real>0.14969611189742735</real>
-				<key>totalNumberOfAnalyzerIssues</key>
-				<integer>0</integer>
-				<key>totalNumberOfErrors</key>
-				<integer>0</integer>
-				<key>totalNumberOfTestFailures</key>
-				<integer>0</integer>
-				<key>totalNumberOfWarnings</key>
-				<integer>0</integer>
-			</dict>
-			<key>schemeIdentifier-containerName</key>
-			<string>Bookkeeping project</string>
-			<key>schemeIdentifier-schemeName</key>
-			<string>Bookkeeping</string>
-			<key>schemeIdentifier-sharedScheme</key>
-			<integer>1</integer>
-			<key>signature</key>
-			<string>Test Bookkeeping</string>
-			<key>timeStartedRecording</key>
-			<real>808758569.66776097</real>
-			<key>timeStoppedRecording</key>
-			<real>808758576.70731401</real>
-			<key>title</key>
-			<string>Test Bookkeeping</string>
-			<key>uniqueIdentifier</key>
-			<string>6CA8648F-9AEC-4BDE-AE48-318D351087B4</string>
-		</dict>
-		<key>86E75DAE-8F3C-4AAD-8E03-C6DF00948CFF</key>
-		<dict>
-			<key>auxiliaryLogUniqueIdentifier</key>
-			<string>32FE8F2C-5E43-4BF2-A004-758A79C99B76</string>
-			<key>auxiliaryObservable</key>
-			<dict>
-				<key>highLevelStatus</key>
-				<string>S</string>
-				<key>totalNumberOfAnalyzerIssues</key>
-				<integer>0</integer>
-				<key>totalNumberOfErrors</key>
-				<integer>0</integer>
-				<key>totalNumberOfTestFailures</key>
-				<integer>0</integer>
-				<key>totalNumberOfWarnings</key>
-				<integer>0</integer>
-			</dict>
-			<key>className</key>
-			<string>IDESchemeActionsInvocationRecord</string>
-			<key>documentTypeString</key>
-			<string>&lt;nil&gt;</string>
-			<key>domainType</key>
-			<string>com.apple.dt.unit.cocoaUnitTest</string>
-			<key>fileName</key>
-			<string>Test-ThemeUITests-2026.08.18_23-06-55-+0800.xcresult</string>
-			<key>hasAuxiliaryLog</key>
-			<true/>
-			<key>hasCoverageData</key>
-			<true/>
-			<key>hasPrimaryLog</key>
-			<true/>
-			<key>primaryObservable</key>
-			<dict>
-				<key>highLevelStatus</key>
-				<string>T</string>
-				<key>totalCodeCoverage</key>
-				<real>0.14962531223980016</real>
-				<key>totalNumberOfAnalyzerIssues</key>
-				<integer>0</integer>
-				<key>totalNumberOfErrors</key>
-				<integer>0</integer>
-				<key>totalNumberOfTestFailures</key>
-				<integer>2</integer>
-				<key>totalNumberOfWarnings</key>
-				<integer>0</integer>
-			</dict>
-			<key>schemeIdentifier-containerName</key>
-			<string>Bookkeeping project</string>
-			<key>schemeIdentifier-schemeName</key>
-			<string>ThemeUITests</string>
-			<key>schemeIdentifier-sharedScheme</key>
-			<integer>1</integer>
-			<key>signature</key>
-			<string>Test ThemeUITests</string>
-			<key>timeStartedRecording</key>
-			<real>808758415.06939995</real>
-			<key>timeStoppedRecording</key>
-			<real>808758433.71623099</real>
-			<key>title</key>
-			<string>Test ThemeUITests</string>
-			<key>uniqueIdentifier</key>
-			<string>86E75DAE-8F3C-4AAD-8E03-C6DF00948CFF</string>
-		</dict>
 		<key>AFE7E831-E3C5-4B15-BF3D-B8C4BF18E373</key>
 		<dict>
 			<key>auxiliaryLogUniqueIdentifier</key>
@@ -380,10 +69,10 @@
 			<key>uniqueIdentifier</key>
 			<string>AFE7E831-E3C5-4B15-BF3D-B8C4BF18E373</string>
 		</dict>
-		<key>C0BF0A2E-A1D1-4CAC-B59C-1C3C8D7A5C95</key>
+		<key>F21448E9-A41D-42D3-8537-2D3F3AAF46FB</key>
 		<dict>
 			<key>auxiliaryLogUniqueIdentifier</key>
-			<string>9A9CDBAD-BE5C-4C58-80DB-3DEF4EA17D20</string>
+			<string>A61CD78B-B8E1-428D-BCEE-19E8F0F5EB1E</string>
 			<key>auxiliaryObservable</key>
 			<dict>
 				<key>highLevelStatus</key>
@@ -404,7 +93,7 @@
 			<key>domainType</key>
 			<string>com.apple.dt.unit.cocoaUnitTest</string>
 			<key>fileName</key>
-			<string>Test-ThemeUITests-2026.08.18_23-07-39-+0800.xcresult</string>
+			<string>Test-Bookkeeping-2026.08.19_14-03-29-+0800.xcresult</string>
 			<key>hasAuxiliaryLog</key>
 			<true/>
 			<key>hasCoverageData</key>
@@ -416,7 +105,7 @@
 				<key>highLevelStatus</key>
 				<string>S</string>
 				<key>totalCodeCoverage</key>
-				<real>0.14969611189742735</real>
+				<real>0.15024958402662231</real>
 				<key>totalNumberOfAnalyzerIssues</key>
 				<integer>0</integer>
 				<key>totalNumberOfErrors</key>
@@ -429,19 +118,19 @@
 			<key>schemeIdentifier-containerName</key>
 			<string>Bookkeeping project</string>
 			<key>schemeIdentifier-schemeName</key>
-			<string>ThemeUITests</string>
+			<string>Bookkeeping</string>
 			<key>schemeIdentifier-sharedScheme</key>
 			<integer>1</integer>
 			<key>signature</key>
-			<string>Test ThemeUITests</string>
+			<string>Test Bookkeeping</string>
 			<key>timeStartedRecording</key>
-			<real>808758459.13852894</real>
+			<real>808812209.67615902</real>
 			<key>timeStoppedRecording</key>
-			<real>808758464.75856602</real>
+			<real>808812247.12622404</real>
 			<key>title</key>
-			<string>Test ThemeUITests</string>
+			<string>Test Bookkeeping</string>
 			<key>uniqueIdentifier</key>
-			<string>C0BF0A2E-A1D1-4CAC-B59C-1C3C8D7A5C95</string>
+			<string>F21448E9-A41D-42D3-8537-2D3F3AAF46FB</string>
 		</dict>
 	</dict>
 </dict>

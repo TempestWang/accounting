@@ -36,6 +36,15 @@ enum DSColor {
     /// 深色英雄卡背景（首页总览卡片，随主题色系变化）
     static var heroCardDark: Color { ThemeManager.shared.colors.heroCard }
 
+    /// 深色英雄卡上的主文字（白色）
+    static var heroTextPrimary: Color { ThemeManager.shared.colors.heroTextPrimary }
+    /// 深色英雄卡上的次级文字（白 60%）
+    static var heroTextSecondary: Color { ThemeManager.shared.colors.heroTextSecondary }
+    /// 深色英雄卡上的弱化文字（白 35%）
+    static var heroTextTertiary: Color { ThemeManager.shared.colors.heroTextTertiary }
+    /// 深色英雄卡上的发丝分割线 / 进度轨道（白）
+    static var heroHairline: Color { ThemeManager.shared.colors.heroHairline }
+
     /// 品牌渐变起始色（主按钮 / 悬浮按钮 / 品牌渐变）
     static var gradientStart: Color { ThemeManager.shared.colors.gradientStart }
     /// 品牌渐变结束色

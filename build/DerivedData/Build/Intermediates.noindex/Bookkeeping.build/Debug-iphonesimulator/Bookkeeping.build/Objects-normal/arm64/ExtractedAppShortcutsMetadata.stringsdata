@@ -1,32 +1,32 @@
 {
+  "source" : "\/Users\/tempestwang\/workspace\/accounting\/Bookkeeping\/Intents\/AppShortcutsProvider.swift",
   "tables" : {
     "AppShortcuts" : [
       {
         "key" : "用${applicationName}识别截图记账",
+        "location" : {
+          "startingLine" : 5,
+          "startingColumn" : 0
+        },
         "values" : [
           "用${applicationName}识别截图记账",
           "${applicationName}识别截图"
         ],
         "appShortcutMetadata" : [
           {
+            "title" : "识别截图",
+            "actionIdentifier" : "RecognizeAndRecordIntent",
+            "index" : 0,
             "parameterTypes" : {
 
             },
             "parameterDisplayRepresentations" : {
 
-            },
-            "actionIdentifier" : "RecognizeAndRecordIntent",
-            "title" : "识别截图",
-            "index" : 0
+            }
           }
-        ],
-        "location" : {
-          "startingColumn" : 0,
-          "startingLine" : 5
-        }
+        ]
       }
     ]
   },
-  "version" : 2,
-  "source" : "\/Users\/tempestwang\/workspace\/accounting\/Bookkeeping\/Intents\/AppShortcutsProvider.swift"
+  "version" : 2
 }

@@ -18,7 +18,7 @@
 		</data>
 		<key>Bookkeeping.debug.dylib</key>
 		<data>
-		ONvOOFX1JEyjrJmgL1GJcf1pFwA=
+		enLVpvS+jXvCx0pTPK13Nt0380Q=
 		</data>
 		<key>Frameworks/Testing.framework/Info.plist</key>
 		<data>
@@ -150,7 +150,7 @@
 		</data>
 		<key>Metadata.appintents/version.json</key>
 		<data>
-		eX845NZBkIpwlA6oT14P97sPaYE=
+		PFbTXKE++oaNDMAe6pe4WaYJGCA=
 		</data>
 		<key>PkgInfo</key>
 		<data>
@@ -158,7 +158,7 @@
 		</data>
 		<key>PlugIns/BookkeepingUnitTests.xctest/BookkeepingUnitTests</key>
 		<data>
-		h0jG/koBgBlPICn+uggFs1lROkg=
+		xyNjYi5OHU5n1WyfrW+LZ3OIRoU=
 		</data>
 		<key>PlugIns/BookkeepingUnitTests.xctest/Info.plist</key>
 		<data>
@@ -204,7 +204,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			UAJoGXzZPw7jeSouW0MzNBP0el5D2aDuWJMibGC6ixo=
+			Ge3S46OUITG/2xyie1HdOrx6Ct6AW2URnNoSi2acYAU=
 			</data>
 		</dict>
 		<key>Frameworks/Testing.framework/Info.plist</key>
@@ -428,14 +428,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			P7sdfoAmXiAQcQF3sPyVmNsG+gFrzxEnNkB8p2zt2yE=
+			bGEMLTRvWVvXxahROmLgL3ZVf6XYsEamPvgqyAHzT5M=
 			</data>
 		</dict>
 		<key>PlugIns/BookkeepingUnitTests.xctest/BookkeepingUnitTests</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			UNrl1FSWkoV0A/SDKTu6QWA5ClXU08iPwWgHiucl4V0=
+			N+qvCoUosKlFpUGOMW0rA7oM/I3hWMV7+SP4Vf0bViM=
 			</data>
 		</dict>
 		<key>PlugIns/BookkeepingUnitTests.xctest/Info.plist</key>
