@@ -1,11 +1,11 @@
 import Foundation
 import SwiftData
 
-/// 预算业务逻辑：月度预算计算、状态判定、日期区间工具。
+/// 预算业务逻辑：长期每月预算计算、状态判定、日期区间工具。
 ///
 /// 设计约定：
 /// - 预算使用金额始终基于 Transaction 实时计算，不持久化任何中间统计结果；
-/// - 同一自然月仅一条 Budget 记录（month 为 "yyyy-MM"），唯一性由写入侧"先查后插"保证；
+/// - 一条永久 Budget 记录作为每个月通用的支出上限；
 /// - 收入不计入预算使用金额，仅统计 TransactionType.expense；
 /// - 预算状态阈值（80% / 100%）统一收敛在本类型，视图不重复硬编码。
 enum BudgetService {
@@ -31,7 +31,7 @@ enum BudgetService {
     /// 某个月份的预算汇总（全部字段实时计算，不持久化）
     struct MonthSummary {
         let monthKey: String
-        let budget: Budget?       // nil = 该月未设置预算
+        let budget: Budget?       // nil = 未设置长期每月预算
         let expense: Decimal      // 该月支出合计（仅 expense）
         let income: Decimal       // 该月收入合计（仅 income）
         let remainingDays: Int    // 今天（含）到月底的自然日数；非本月为 0
@@ -69,7 +69,7 @@ enum BudgetService {
         }
     }
 
-    /// 历史预算记录（预算 + 当月真实支出 / 收入，实时计算）
+    /// 历史月度使用项（永久预算 + 当月真实支出 / 收入，实时计算）
     struct HistoryItem: Identifiable {
         let monthKey: String
         let amount: Decimal
@@ -147,10 +147,18 @@ enum BudgetService {
 
     // MARK: - 查询（均需主线程访问 ModelContext）
 
-    /// 指定月份的预算记录（一个自然月一条）
+    /// 返回永久的每月预算。旧版按月记录在首次保存永久预算前仅作为迁移回退值。
+    static func permanentBudget(from budgets: [Budget]) -> Budget? {
+        if let permanent = budgets.first(where: \.isPermanent) {
+            return permanent
+        }
+        return budgets.sorted { $0.month > $1.month }.first
+    }
+
+    /// 从存储中读取永久的每月预算。
     @MainActor
-    static func budget(for monthKey: String, in context: ModelContext) -> Budget? {
-        allBudgets(in: context).first { $0.month == monthKey }
+    static func permanentBudget(in context: ModelContext) -> Budget? {
+        permanentBudget(from: allBudgets(in: context))
     }
 
     /// 全部预算记录
@@ -188,28 +196,30 @@ enum BudgetService {
     static func summary(monthKey key: String, context: ModelContext, today: Date = Date()) -> MonthSummary {
         MonthSummary(
             monthKey: key,
-            budget: budget(for: key, in: context),
+            budget: permanentBudget(in: context),
             expense: monthTotals(in: key, context: context).expense,
             income: monthTotals(in: key, context: context).income,
             remainingDays: remainingDays(in: key, today: today)
         )
     }
 
-    /// 历史预算记录（仅已设置预算的月份，真实支出 / 收入实时计算，按月份倒序）
+    /// 历史月度使用情况：每个月都使用同一条永久预算作比较。
     @MainActor
     static func history(in context: ModelContext, limit: Int = 24) -> [HistoryItem] {
-        allBudgets(in: context)
-            .sorted { $0.month > $1.month }
+        guard let budget = permanentBudget(in: context), budget.amount > 0 else { return [] }
+        let transactions = (try? context.fetch(FetchDescriptor<Transaction>())) ?? []
+        let keys = Set(transactions.map { monthKey($0.date) })
+            .union([monthKey()])
+            .sorted(by: >)
             .prefix(limit)
-            .compactMap { budget in
-                guard budget.amount > 0 else { return nil }
-                let totals = monthTotals(in: budget.month, context: context)
-                return HistoryItem(
-                    monthKey: budget.month,
-                    amount: budget.amount,
-                    expense: totals.expense,
-                    income: totals.income
-                )
-            }
+        return keys.map { key in
+            let totals = monthTotals(in: key, context: context)
+            return HistoryItem(
+                monthKey: key,
+                amount: budget.amount,
+                expense: totals.expense,
+                income: totals.income
+            )
+        }
     }
 }

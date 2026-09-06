@@ -40,7 +40,7 @@ enum BackupManager {
                 )
             },
             budgets: budgets.map {
-                BackupBudget(id: $0.id, month: $0.month, amount: "\($0.amount)")
+                BackupBudget(id: $0.id, month: $0.month, amount: "\($0.amount)", isPermanent: $0.isPermanent)
             }
         )
 
@@ -113,12 +113,15 @@ enum BackupManager {
             newTransactions += 1
         }
 
-        // 3. 预算（按月份幂等）
+        // 3. 预算（永久预算按标记幂等，旧版按月份兼容导入）
         let existingMonths = Set(try context.fetch(FetchDescriptor<Budget>()).map(\.month))
+        var hasPermanentBudget = try context.fetch(FetchDescriptor<Budget>()).contains { $0.isPermanent }
         for item in payload.budgets {
+            if item.isPermanent == true, hasPermanentBudget { continue }
             guard !existingMonths.contains(item.month) else { continue }
             guard let amount = Decimal(string: item.amount, locale: Locale(identifier: "en_US_POSIX")) else { continue }
-            context.insert(Budget(id: item.id, month: item.month, amount: amount))
+            context.insert(Budget(id: item.id, month: item.month, amount: amount, isPermanent: item.isPermanent ?? false))
+            if item.isPermanent == true { hasPermanentBudget = true }
             newBudgets += 1
         }
 
@@ -192,4 +195,5 @@ private struct BackupBudget: Codable {
     let id: UUID
     let month: String
     let amount: String
+    let isPermanent: Bool?
 }

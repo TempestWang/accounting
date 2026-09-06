@@ -12,9 +12,7 @@ struct TransactionRow: View {
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
                     .fill(categoryColor.opacity(0.15))
                     .frame(width: 44, height: 44)
-                Image(systemName: categoryIcon)
-                    .font(.system(size: 19, weight: .medium))
-                    .foregroundStyle(categoryColor)
+                DSCategoryGlyph(icon: categoryIcon, color: categoryColor, size: 19)
             }
 
             VStack(alignment: .leading, spacing: 3) {
@@ -55,6 +53,8 @@ struct TransactionRow: View {
                 .lineLimit(1)
         }
         .padding(.vertical, 6)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(Rectangle())
     }
 
     // MARK: 派生数据

@@ -144,9 +144,11 @@ struct HomeView: View {
                                             )
                                         )
                                         .frame(width: 56, height: 56)
-                                    Image(systemName: cat.icon)
-                                        .font(.system(size: 22, weight: .medium))
-                                        .foregroundStyle(ColorPalette.color(for: cat.name))
+                                    DSCategoryGlyph(
+                                        icon: cat.icon,
+                                        color: ColorPalette.color(for: cat.name),
+                                        size: 22
+                                    )
                                 }
                                 Text(cat.name)
                                     .font(.caption)
@@ -180,9 +182,13 @@ struct HomeView: View {
                 .padding(.vertical, DSpace.xs)
             } else {
                 ForEach(Array(recent.enumerated()), id: \.element.id) { index, tx in
-                    TransactionRow(transaction: tx)
-                        .contentShape(Rectangle())
-                        .onTapGesture { editingTransaction = tx }
+                    Button {
+                        editingTransaction = tx
+                    } label: {
+                        TransactionRow(transaction: tx)
+                    }
+                    .buttonStyle(DSPlainButtonStyle())
+                    .contentShape(Rectangle())
                     if index < recent.count - 1 {
                         Divider()
                             .padding(.leading, 56)
@@ -276,7 +282,7 @@ private struct HomeMonthCard: View {
     }
 
     private var currentBudget: Budget? {
-        budgets.first { $0.month == monthKey }
+        BudgetService.permanentBudget(from: budgets)
     }
 
     // MARK: 视图
@@ -451,7 +457,7 @@ private struct HomeMonthCard: View {
                         .padding(.vertical, 5)
                         .background(Capsule().fill(.white.opacity(0.2)))
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(DSPlainButtonStyle())
             }
         }
     }
@@ -479,7 +485,7 @@ private struct HomeMonthCard: View {
                     .padding(.vertical, 5)
                     .background(Capsule().fill(.white.opacity(0.2)))
             }
-            .buttonStyle(.plain)
+            .buttonStyle(DSPlainButtonStyle())
         }
     }
 

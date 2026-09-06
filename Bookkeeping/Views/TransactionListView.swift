@@ -112,14 +112,18 @@ struct TransactionListView: View {
             ForEach(groupedByDay, id: \.0) { day, items in
                 Section {
                     ForEach(items) { tx in
-                        TransactionRow(transaction: tx)
-                            .contentShape(Rectangle())
-                            .onTapGesture { editingTransaction = tx }
-                            .listRowBackground(Color.clear)
-                            .listRowSeparator(.hidden)
-                            .listRowInsets(
-                                EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16)
-                            )
+                        Button {
+                            editingTransaction = tx
+                        } label: {
+                            TransactionRow(transaction: tx)
+                        }
+                        .buttonStyle(DSPlainButtonStyle())
+                        .contentShape(Rectangle())
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(
+                            EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16)
+                        )
                     }
                     .onDelete { offsets in
                         delete(items: items, at: offsets)

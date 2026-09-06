@@ -41,7 +41,13 @@ enum PaymentParser {
 
         let lower = trimmed.lowercased()
         result.type = incomeKeywords.contains(where: { lower.contains($0.lowercased()) }) ? .income : .expense
-        result.amount = extractAmount(from: trimmed)
+        let amountResult = extractAmount(from: trimmed)
+        result.amount = amountResult?.value
+        // 交易金额前的正负号比页面中的关键词更可靠：
+        // 「- ¥100」是支出，「+ ¥100」是收入，即使同一张图还包含“收款方”等文字。
+        if let sign = amountResult?.sign {
+            result.type = sign == "+" ? .income : .expense
+        }
         result.merchant = extractMerchant(from: trimmed)
         result.date = extractDate(from: trimmed)
         result.categoryName = extractCategory(from: trimmed, merchant: result.merchant, type: result.type)
@@ -61,12 +67,19 @@ enum PaymentParser {
 
     private struct AmountCandidate {
         let value: Decimal
+        let sign: Character?
         let hasSymbol: Bool
         let hasDecimal: Bool
         let isAnchored: Bool
+        let isBalance: Bool
     }
 
-    private static func extractAmount(from text: String) -> Decimal? {
+    private struct AmountResult {
+        let value: Decimal
+        let sign: Character?
+    }
+
+    private static func extractAmount(from text: String) -> AmountResult? {
         // 先剔除日期与时间文本，避免年份/时间数字被误认为金额（如 "2026-08-09 12:50"）
         let dateStripped = text.replacingOccurrences(
             of: "\\d{4}[-/.年]\\d{1,2}[-/.月]\\d{1,2}日?|\\d{1,2}月\\d{1,2}日|\\d{1,2}:\\d{2}",
@@ -74,38 +87,60 @@ enum PaymentParser {
             options: .regularExpression
         )
 
-        let pattern = "(?:[¥￥]\\s*)?(\\d+(?:[.,]\\d+)?)"
+        // 同时捕获金额前的正负号。OCR 可能把减号识别为 Unicode minus（−）。
+        let pattern = "([+\\-−])?\\s*(?:[¥￥]\\s*)?(\\d+(?:[.,]\\d+)?)"
         guard let regex = try? NSRegularExpression(pattern: pattern) else { return nil }
         let ns = dateStripped as NSString
         let matches = regex.matches(in: dateStripped, range: NSRange(location: 0, length: ns.length))
 
         let anchors = ["实付", "付款金额", "支付金额", "交易金额", "总额", "金额", "合计", "¥", "￥", "应收", "本金"]
+        let balanceWords = ["余额", "剩余", "可用余额", "账户余额", "当前余额"]
         var candidates: [AmountCandidate] = []
 
         for m in matches {
             let full = ns.substring(with: m.range) as String
-            let rawNum = ns.substring(with: m.range(at: 1)) as String
+            let sign: Character? = m.range(at: 1).location == NSNotFound
+                ? nil
+                : Character(ns.substring(with: m.range(at: 1)))
+            let rawNum = ns.substring(with: m.range(at: 2)) as String
             let numStr = rawNum.replacingOccurrences(of: ",", with: "")
             // 显式指定 POSIX locale，避免德语等地区把 "." 当成千分位导致金额错读
             guard let val = Decimal(string: numStr, locale: Locale(identifier: "en_US_POSIX")), val > 0 else { continue }
 
-            let start = max(0, m.range.location - 10)
+            let line = ns.substring(with: ns.lineRange(for: m.range))
+            let start = max(0, m.range.location - 24)
             let window = ns.substring(with: NSRange(location: start, length: m.range.location - start))
             let isAnchored = anchors.contains(where: { window.localizedCaseInsensitiveContains($0) })
+            let isBalance = balanceWords.contains {
+                line.localizedCaseInsensitiveContains($0) || window.localizedCaseInsensitiveContains($0)
+            }
 
             candidates.append(AmountCandidate(
                 value: val,
+                sign: sign == "−" ? "-" : sign,
                 hasSymbol: full.contains("¥") || full.contains("￥"),
                 hasDecimal: rawNum.contains(".") || rawNum.contains(","),
-                isAnchored: isAnchored
+                isAnchored: isAnchored,
+                isBalance: isBalance
             ))
         }
 
-        // 优先：金额关键词附近 → 带 ¥ 符号 → 带小数 → 最大
-        if let best = candidates.filter(\.isAnchored).map(\.value).max() { return best }
-        if let best = candidates.filter(\.hasSymbol).map(\.value).max() { return best }
-        if let best = candidates.filter(\.hasDecimal).map(\.value).max() { return best }
-        return candidates.map(\.value).max()
+        // 页面同时出现交易金额与余额时，余额不是可记账金额。
+        let usable = candidates.contains(where: { !$0.isBalance })
+            ? candidates.filter { !$0.isBalance }
+            : candidates
+        // 带正负号通常就是交易金额；其后依次按关键词、货币符号、小数格式排序。
+        let best = usable.max { lhs, rhs in
+            amountScore(lhs) < amountScore(rhs)
+        }
+        return best.map { AmountResult(value: $0.value, sign: $0.sign) }
+    }
+
+    private static func amountScore(_ candidate: AmountCandidate) -> Int {
+        (candidate.sign != nil ? 100 : 0)
+            + (candidate.isAnchored ? 40 : 0)
+            + (candidate.hasSymbol ? 20 : 0)
+            + (candidate.hasDecimal ? 10 : 0)
     }
 
     // MARK: - 商户
@@ -189,24 +224,73 @@ enum PaymentParser {
                 .replacingOccurrences(of: ".", with: "-")
                 .replacingOccurrences(of: "/", with: "-")
 
-            let f = DateFormatter()
-            f.locale = Locale(identifier: "zh_CN")
-
-            if normalized.contains("-"), normalized.count >= 8 {
-                f.dateFormat = "yyyy-M-d"
-                if let d = f.date(from: normalized) { return d }
-            } else {
-                // "8月9日" → 补上当前年份
-                f.dateFormat = "M-d"
-                if let d = f.date(from: normalized) {
-                    let cal = Calendar.current
-                    let year = cal.component(.year, from: Date())
-                    let comps = DateComponents(year: year, month: cal.component(.month, from: d), day: cal.component(.day, from: d))
-                    return cal.date(from: comps)
-                }
-            }
+            guard let date = date(fromNormalizedDate: normalized) else { continue }
+            return applyingTime(near: m.range, in: text, to: date)
         }
         return nil
+    }
+
+    private static func date(fromNormalizedDate normalized: String) -> Date? {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "zh_CN")
+
+        if normalized.contains("-"), normalized.count >= 8 {
+            formatter.dateFormat = "yyyy-M-d"
+            return formatter.date(from: normalized)
+        }
+
+        // "8月9日" → 补上当前年份
+        formatter.dateFormat = "M-d"
+        guard let date = formatter.date(from: normalized) else { return nil }
+        let calendar = Calendar.current
+        let year = calendar.component(.year, from: Date())
+        let components = DateComponents(
+            year: year,
+            month: calendar.component(.month, from: date),
+            day: calendar.component(.day, from: date)
+        )
+        return calendar.date(from: components)
+    }
+
+    /// 付款凭证常把交易时间紧跟在日期后。日期单独识别成功时，也要保留时分，
+    /// 否则记账会默认落在当天 00:00，影响流水顺序。
+    private static func applyingTime(near dateRange: NSRange, in text: String, to date: Date) -> Date {
+        let patterns = [
+            "(?<!\\d)([01]?\\d|2[0-3])\\s*[:：]\\s*([0-5]\\d)(?:\\s*[:：]\\s*([0-5]\\d))?",
+            "(?<!\\d)([01]?\\d|2[0-3])\\s*时\\s*([0-5]?\\d)\\s*分?"
+        ]
+
+        let ns = text as NSString
+        let fullRange = NSRange(location: 0, length: ns.length)
+        let matches = patterns.flatMap { pattern in
+            (try? NSRegularExpression(pattern: pattern))?.matches(in: text, range: fullRange) ?? []
+        }
+        guard let match = matches.min(by: {
+            distance(from: $0.range, to: dateRange) < distance(from: $1.range, to: dateRange)
+        }), distance(from: match.range, to: dateRange) <= 64,
+              let hour = Int(ns.substring(with: match.range(at: 1))),
+              let minute = Int(ns.substring(with: match.range(at: 2))) else {
+            return date
+        }
+        let second = match.numberOfRanges > 3 && match.range(at: 3).location != NSNotFound
+            ? Int(ns.substring(with: match.range(at: 3))) ?? 0
+            : 0
+        return Calendar.current.date(
+            bySettingHour: hour,
+            minute: minute,
+            second: second,
+            of: date
+        ) ?? date
+    }
+
+    private static func distance(from timeRange: NSRange, to dateRange: NSRange) -> Int {
+        if timeRange.location > dateRange.upperBound {
+            return timeRange.location - dateRange.upperBound
+        }
+        if dateRange.location > timeRange.upperBound {
+            return dateRange.location - timeRange.upperBound
+        }
+        return 0
     }
 
     // MARK: - 分类

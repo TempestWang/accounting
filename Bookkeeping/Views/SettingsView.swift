@@ -27,7 +27,6 @@ struct SettingsView: View {
                 VStack(spacing: AppSpacing.l) {
                     themeSection
                     settingsSection
-                    icloudSection
                     dataSection
                     automationSection
                     aboutSection
@@ -115,7 +114,7 @@ struct SettingsView: View {
                     }
                 )
             }
-            .buttonStyle(.plain)
+            .buttonStyle(DSPlainButtonStyle())
             .accessibilityIdentifier("settings.theme")
             settingsDivider
             Button {
@@ -132,7 +131,7 @@ struct SettingsView: View {
                     }
                 )
             }
-            .buttonStyle(.plain)
+            .buttonStyle(DSPlainButtonStyle())
         }
         .dsCard(padding: 0)
     }
@@ -150,7 +149,7 @@ struct SettingsView: View {
                     title: "分类管理"
                 )
             }
-            .buttonStyle(.plain)
+            .buttonStyle(DSPlainButtonStyle())
             settingsDivider
             Button {
                 showBudget = true
@@ -158,38 +157,10 @@ struct SettingsView: View {
                 settingsRow(
                     icon: "target",
                     iconColor: DSColor.healthy,
-                    title: "本月预算"
+                    title: "每月预算"
                 )
             }
-            .buttonStyle(.plain)
-        }
-        .dsCard(padding: 0)
-    }
-
-    // MARK: - iCloud 同步
-
-    private var icloudSection: some View {
-        VStack(spacing: 0) {
-            settingsRow(
-                icon: "icloud",
-                iconColor: DSColor.primary,
-                title: "iCloud 同步",
-                trailing: {
-                    Text(isICloudAvailable ? "已开启" : "未开启")
-                        .font(.caption)
-                        .foregroundStyle(isICloudAvailable ? DSColor.income : .secondary)
-                }
-            )
-            settingsDivider
-            VStack(alignment: .leading, spacing: 4) {
-                Text(isICloudAvailable
-                     ? "账目会自动同步到你的 iCloud 账户，换机登录同一 Apple ID 即可恢复。"
-                     : "当前未启用（云同步需要付费开发者账号）。未启用时数据仅保存在本机，可用 JSON 备份导出/导入。")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            .padding(.horizontal, AppSpacing.l)
-            .padding(.vertical, AppSpacing.m)
+            .buttonStyle(DSPlainButtonStyle())
         }
         .dsCard(padding: 0)
     }
@@ -237,7 +208,7 @@ struct SettingsView: View {
                     title: "导入备份（JSON）"
                 )
             }
-            .buttonStyle(.plain)
+            .buttonStyle(DSPlainButtonStyle())
         }
         .dsCard(padding: 0)
     }
@@ -275,7 +246,7 @@ struct SettingsView: View {
             )
             settingsDivider
             VStack(alignment: .leading, spacing: 4) {
-                Text("数据会自动同步到 iCloud（需登录 iCloud），建议定期导出 JSON 备份，双保险更安心。")
+                Text("数据仅保存在本机，建议定期导出 JSON 备份，以便换机或恢复数据。")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -315,6 +286,8 @@ struct SettingsView: View {
         }
         .padding(.horizontal, AppSpacing.l)
         .padding(.vertical, AppSpacing.m)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(Rectangle())
     }
 
     private var settingsDivider: some View {
@@ -322,13 +295,6 @@ struct SettingsView: View {
             .fill(DSColor.hairline)
             .frame(height: 0.5)
             .padding(.leading, 64)
-    }
-
-    // MARK: - iCloud 状态
-
-    /// iCloud 是否可用（是否登录由系统管理；未启用 iCloud 能力时恒为 false）
-    private var isICloudAvailable: Bool {
-        FileManager.default.ubiquityIdentityToken != nil
     }
 
     // MARK: - 导出文件（进入页面时生成一次，避免每次刷新重写）

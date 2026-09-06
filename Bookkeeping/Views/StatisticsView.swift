@@ -53,6 +53,9 @@ private struct StatisticsContent: View {
     @Binding var showIncome: Bool
     var onShiftPeriod: (Int) -> Void
 
+    /// 当前在收支趋势图中选中的月份标签。
+    @State private var selectedTrendLabel: String?
+
     @Query private var budgets: [Budget]
 
     /// 当前统计周期的流水（谓词限定，避免全量加载；@Query 随数据变化自动更新）
@@ -131,7 +134,7 @@ private struct StatisticsContent: View {
     }
 
     private var currentBudget: Budget? {
-        budgets.first { $0.month == DateFormatters.monthKey(month) }
+        BudgetService.permanentBudget(from: budgets)
     }
 
     var body: some View {
@@ -180,7 +183,7 @@ private struct StatisticsContent: View {
                                 Capsule().fill(period == p ? DSColor.primary : .clear)
                             )
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(DSPlainButtonStyle())
                 }
             }
             .padding(3)
@@ -491,7 +494,7 @@ private struct StatisticsContent: View {
                                 Capsule().fill(!showIncome ? DSColor.primary : .clear)
                             )
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(DSPlainButtonStyle())
 
                     Button {
                         withSmoothAnimation(AppAnimation.spring) { showIncome = true }
@@ -505,7 +508,7 @@ private struct StatisticsContent: View {
                                 Capsule().fill(showIncome ? DSColor.primary : .clear)
                             )
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(DSPlainButtonStyle())
                 }
                 .padding(2)
                 .frame(width: 120)
@@ -524,9 +527,11 @@ private struct StatisticsContent: View {
                             RoundedRectangle(cornerRadius: 8, style: .continuous)
                                 .fill(ColorPalette.color(for: rank.name).opacity(0.15))
                                 .frame(width: 30, height: 30)
-                            Image(systemName: rank.icon)
-                                .font(.system(size: 13, weight: .medium))
-                                .foregroundStyle(ColorPalette.color(for: rank.name))
+                            DSCategoryGlyph(
+                                icon: rank.icon,
+                                color: ColorPalette.color(for: rank.name),
+                                size: 13
+                            )
                         }
 
                         Text(rank.name)
@@ -670,21 +675,25 @@ private struct StatisticsContent: View {
             Text(period == .month ? "近 6 月收支趋势" : "全年每月收支")
                 .font(Typography.headline)
                 .foregroundStyle(.primary)
-            Chart(trend) { item in
+            let trendItems = trend
+            Chart(trendItems) { item in
                 BarMark(
                     x: .value("月份", item.label),
                     y: .value("金额", item.income)
                 )
                 .foregroundStyle(by: .value("类型", "收入"))
                 .cornerRadius(3)
+                .opacity(barOpacity(for: item))
                 BarMark(
                     x: .value("月份", item.label),
                     y: .value("金额", item.expense)
                 )
                 .foregroundStyle(by: .value("类型", "支出"))
                 .cornerRadius(3)
+                .opacity(barOpacity(for: item))
             }
             .chartForegroundStyleScale(["支出": DSColor.expense, "收入": DSColor.income])
+            .chartXSelection(value: $selectedTrendLabel)
             // 横轴直接显示中文月份（如 3月/4月/5月…），不随系统语言变成 Mar/Apr
             .chartXAxis {
                 AxisMarks { _ in
@@ -703,8 +712,57 @@ private struct StatisticsContent: View {
                 }
             }
             .frame(height: 200)
+
+            if let selected = selectedTrendStat(from: trendItems) {
+                HStack(spacing: 18) {
+                    Text(DateFormatters.monthTitle(selected.date))
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.primary)
+
+                    Spacer(minLength: 0)
+
+                    trendAmount(title: "收入", amount: selected.income, color: DSColor.income)
+                    trendAmount(title: "支出", amount: selected.expense, color: DSColor.expense)
+                }
+                .padding(.top, 2)
+                .transition(.opacity)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel(
+                    "\(DateFormatters.monthTitle(selected.date))，收入 \(formattedTrendAmount(selected.income))，支出 \(formattedTrendAmount(selected.expense))"
+                )
+            }
         }
         .cardStyle()
+    }
+
+    private func selectedTrendStat(from items: [MonthStat]) -> MonthStat? {
+        guard let selectedTrendLabel else { return nil }
+        return items.first { $0.label == selectedTrendLabel }
+    }
+
+    private func barOpacity(for item: MonthStat) -> Double {
+        guard let selectedTrendLabel else { return 1 }
+        return item.label == selectedTrendLabel ? 1 : 0.42
+    }
+
+    private func trendAmount(title: String, amount: Double, color: Color) -> some View {
+        HStack(spacing: 5) {
+            Circle()
+                .fill(color)
+                .frame(width: 7, height: 7)
+            VStack(alignment: .trailing, spacing: 1) {
+                Text(title)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                Text(formattedTrendAmount(amount))
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.primary)
+            }
+        }
+    }
+
+    private func formattedTrendAmount(_ amount: Double) -> String {
+        "¥\(DateFormatters.money(Decimal(amount)))"
     }
 
     // MARK: - 工具

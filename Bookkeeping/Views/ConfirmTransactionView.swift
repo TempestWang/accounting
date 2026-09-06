@@ -206,7 +206,7 @@ struct ConfirmTransactionView: View {
                         .clipShape(RoundedRectangle(cornerRadius: AppRadius.card))
                 }
             }
-            .buttonStyle(.plain)
+            .buttonStyle(DSPlainButtonStyle())
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(AppSpacing.l)
@@ -237,7 +237,7 @@ struct ConfirmTransactionView: View {
                                 Capsule().fill(type == t ? DSColor.primary : .clear)
                             )
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(DSPlainButtonStyle())
                 }
             }
             .padding(3)
@@ -373,7 +373,7 @@ struct ConfirmTransactionView: View {
                             .fill(DSColor.secondaryFill)
                     )
             }
-            .buttonStyle(.plain)
+            .buttonStyle(DSPlainButtonStyle())
 
             Button {
                 save()
@@ -402,7 +402,7 @@ struct ConfirmTransactionView: View {
                               )
                     )
             }
-            .buttonStyle(.plain)
+            .buttonStyle(DSPlainButtonStyle())
             .disabled(validAmount == nil)
         }
         .padding(.horizontal, AppSpacing.l)
@@ -475,16 +475,18 @@ private struct CategoryPickerSheet: View {
                                             .opacity(selectedName == cat.name ? 0.35 : 0.12)
                                     )
                                     .frame(width: 48, height: 48)
-                                Image(systemName: cat.icon)
-                                    .font(.system(size: 20))
-                                    .foregroundStyle(ColorPalette.color(for: cat.name))
+                                DSCategoryGlyph(
+                                    icon: cat.icon,
+                                    color: ColorPalette.color(for: cat.name),
+                                    size: 20
+                                )
                             }
                             Text(cat.name)
                                 .font(.caption)
                                 .foregroundStyle(.primary)
                         }
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(DSPlainButtonStyle())
                 }
             }
             .padding(AppSpacing.l)

@@ -44,12 +44,23 @@ extension View {
     }
 }
 
-/// 统一按钮按压样式（ButtonStyle 版本，不影响现有 buttonStyle(.plain) 用法）
+/// 统一按钮按压样式，并为标签提供完整的矩形命中区域。
 struct DSScaleButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
+            // SwiftUI 的 plain 样式默认可能只把文字/图标当作命中区域。
+            // 显式声明矩形后，按钮的整个布局区域都可以点击。
+            .contentShape(Rectangle())
             .scaleEffect(configuration.isPressed ? 0.96 : 1)
             .opacity(configuration.isPressed ? 0.9 : 1)
             .animation(AppAnimation.smooth, value: configuration.isPressed)
+    }
+}
+
+/// 无额外视觉效果的按钮样式，但保留完整的矩形点击区域。
+struct DSPlainButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .contentShape(Rectangle())
     }
 }

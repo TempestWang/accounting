@@ -77,14 +77,39 @@ struct DSCategoryIcon: View {
                     selected ? color.opacity(0.8) : color.opacity(0.15),
                     lineWidth: selected ? 1.5 : 0.5
                 )
-            Image(systemName: icon)
-                .font(.system(size: size * 0.42, weight: .medium))
-                .foregroundStyle(color)
+            DSCategoryGlyph(icon: icon, color: color, size: size * 0.42)
         }
         .frame(width: size, height: size)
         .scaleEffect(selected ? 1.08 : 1)
         .shadow(color: selected ? color.opacity(0.3) : .clear, radius: 8, y: 3)
         .animation(AppAnimation.spring, value: selected)
+    }
+}
+
+/// 分类可使用内置 SF Symbol 或用户通过输入法输入的表情。
+struct DSCategoryGlyph: View {
+    let icon: String
+    let color: Color
+    let size: CGFloat
+
+    var body: some View {
+        if icon.containsEmojiGlyph {
+            Text(icon)
+                .font(.system(size: size))
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+        } else {
+            Image(systemName: icon)
+                .font(.system(size: size, weight: .medium))
+                .foregroundStyle(color)
+        }
+    }
+}
+
+extension String {
+    /// Emoji 可能由多个 Unicode scalar 组成，因此按 scalar 属性判断而非字符串长度。
+    var containsEmojiGlyph: Bool {
+        unicodeScalars.contains { $0.properties.isEmoji }
     }
 }
 
@@ -173,7 +198,7 @@ struct DSPillButton: View {
         Button(action: action) {
             DSPill(text: title, color: color)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(DSPlainButtonStyle())
         .pressFeedback()
     }
 }
@@ -298,7 +323,7 @@ struct DSFilterPills<Value: Hashable>: View {
                             Capsule().fill(isSelected ? tint : .clear)
                         )
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(DSPlainButtonStyle())
             }
         }
         .padding(3)

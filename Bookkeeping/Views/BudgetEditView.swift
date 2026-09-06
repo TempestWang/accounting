@@ -7,9 +7,6 @@ struct BudgetEditView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
 
-    /// 目标月份键（形如 "2026-08"），默认当前月份
-    var month: String = DateFormatters.monthKey()
-
     @Query private var budgets: [Budget]
     @State private var amountText: String = ""
     @State private var showError = false
@@ -20,11 +17,7 @@ struct BudgetEditView: View {
     private static let presets: [Int] = [3000, 5000, 8000, 10000]
 
     private var current: Budget? {
-        budgets.first { $0.month == month }
-    }
-
-    private var isCurrentMonth: Bool {
-        month == DateFormatters.monthKey()
+        BudgetService.permanentBudget(from: budgets)
     }
 
     /// 当前输入解析出的合法金额（nil 表示未输入或非法）
@@ -41,12 +34,15 @@ struct BudgetEditView: View {
             ScrollView {
                 VStack(spacing: AppSpacing.xxl) {
                     VStack(spacing: AppSpacing.xs) {
-                        Text("设置预算 · \(BudgetService.monthTitle(month))")
+                        Text("设置每月预算")
                             .font(.caption)
                             .foregroundStyle(.secondary)
-                        Text("这个月最多花多少？")
+                        Text("每个月最多花多少？")
                             .font(.system(size: 26, weight: .bold))
                             .multilineTextAlignment(.center)
+                        Text("保存后会持续应用于每个月")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
                     }
                     .padding(.top, AppSpacing.xl)
 
@@ -148,7 +144,7 @@ struct BudgetEditView: View {
                     Capsule().fill(selected ? DSColor.primary : Color(.secondarySystemBackground))
                 )
         }
-        .buttonStyle(.plain)
+        .buttonStyle(DSPlainButtonStyle())
         .animation(.easeOut(duration: 0.2), value: selected)
     }
 
@@ -188,13 +184,13 @@ struct BudgetEditView: View {
                           )
                 )
         }
-        .buttonStyle(.plain)
+        .buttonStyle(DSPlainButtonStyle())
         .disabled(!canSave)
         .animation(.easeOut(duration: 0.2), value: canSave)
     }
 
     private var deleteButton: some View {
-        Button("删除该月预算", role: .destructive) {
+        Button("删除每月预算", role: .destructive) {
             deleteBudget()
         }
         .font(.subheadline)
@@ -208,11 +204,19 @@ struct BudgetEditView: View {
             return
         }
         do {
-            // 先查后插：同一月份仅保留一条预算记录
+            // 首次保存时把旧版按月预算转换为永久预算，并合并其余旧记录。
+            let permanent: Budget
             if let current {
                 current.amount = amount
+                current.month = "permanent"
+                current.isPermanent = true
+                permanent = current
             } else {
-                context.insert(Budget(month: month, amount: amount))
+                permanent = Budget(amount: amount)
+                context.insert(permanent)
+            }
+            for budget in budgets where budget !== permanent {
+                context.delete(budget)
             }
             try context.save()
             dismiss()
@@ -223,8 +227,9 @@ struct BudgetEditView: View {
     }
 
     private func deleteBudget() {
-        guard let current else { return }
-        context.delete(current)
+        for budget in budgets {
+            context.delete(budget)
+        }
         do {
             try context.save()
             dismiss()

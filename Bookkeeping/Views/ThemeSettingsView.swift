@@ -203,7 +203,7 @@ struct ThemeSettingsView: View {
             .padding(.vertical, DSpace.md)
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(DSPlainButtonStyle())
         .animation(AppAnimation.smooth, value: isSelected)
         .accessibilityIdentifier("appearance.\(mode.rawValue)")
     }

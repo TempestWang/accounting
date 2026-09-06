@@ -19,6 +19,7 @@ struct PendingTransactionListView: View {
                     } label: {
                         row(pending)
                     }
+                    .contentShape(Rectangle())
                 }
             } header: {
                 Text("识别结果仅作为草稿，确认保存后才会记账")
@@ -87,5 +88,7 @@ struct PendingTransactionListView: View {
             }
         }
         .padding(.vertical, 2)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(Rectangle())
     }
 }

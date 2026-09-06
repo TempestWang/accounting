@@ -112,7 +112,7 @@ struct TransactionFormView: View {
                                 Capsule().fill(type == t ? DSColor.primary : .clear)
                             )
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(DSPlainButtonStyle())
                 }
             }
             .padding(3)

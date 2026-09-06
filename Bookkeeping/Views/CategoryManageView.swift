@@ -86,9 +86,11 @@ struct CategoryManageView: View {
                 RoundedRectangle(cornerRadius: 8, style: .continuous)
                     .fill(ColorPalette.color(for: cat.name).opacity(0.15))
                     .frame(width: 32, height: 32)
-                Image(systemName: cat.icon)
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundStyle(ColorPalette.color(for: cat.name))
+                DSCategoryGlyph(
+                    icon: cat.icon,
+                    color: ColorPalette.color(for: cat.name),
+                    size: 16
+                )
             }
             Text(cat.name)
             if cat.isBuiltin {
@@ -150,6 +152,7 @@ struct CategoryEditView: View {
 
     @State private var name: String = ""
     @State private var icon: String = "tag.fill"
+    @State private var emojiIcon: String = ""
     @State private var type: TransactionType = .expense
     @State private var showError = false
     @State private var errorText = ""
@@ -188,6 +191,7 @@ struct CategoryEditView: View {
                         ForEach(Self.iconChoices, id: \.self) { symbol in
                             Button {
                                 icon = symbol
+                                emojiIcon = ""
                             } label: {
                                 Image(systemName: symbol)
                                     .font(.system(size: 20))
@@ -214,6 +218,24 @@ struct CategoryEditView: View {
                     }
                     .padding(.vertical, 4)
                 }
+
+                Section("自定义表情") {
+                    TextField("输入一个表情", text: $emojiIcon)
+                        .onChange(of: emojiIcon) { _, value in
+                            applyEmojiIcon(value)
+                        }
+
+                    if !emojiIcon.isEmpty {
+                        HStack {
+                            DSCategoryGlyph(
+                                icon: emojiIcon,
+                                color: ColorPalette.color(for: name),
+                                size: 28
+                            )
+                            Spacer()
+                        }
+                    }
+                }
             }
             .navigationTitle(editing == nil ? "添加分类" : "编辑分类")
             .navigationBarTitleDisplayMode(.inline)
@@ -232,6 +254,7 @@ struct CategoryEditView: View {
                 if let editing {
                     name = editing.name
                     icon = editing.icon
+                    emojiIcon = editing.icon.containsEmojiGlyph ? editing.icon : ""
                     type = editing.type
                 }
             }
@@ -266,5 +289,18 @@ struct CategoryEditView: View {
             errorText = "保存失败，请重试。"
             showError = true
         }
+    }
+
+    private func applyEmojiIcon(_ value: String) {
+        guard !value.isEmpty else { return }
+        let candidate = String(value.prefix(1))
+        guard candidate.containsEmojiGlyph else {
+            emojiIcon = ""
+            return
+        }
+        if candidate != value {
+            emojiIcon = candidate
+        }
+        icon = candidate
     }
 }

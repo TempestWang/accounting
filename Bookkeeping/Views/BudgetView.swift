@@ -36,7 +36,7 @@ struct BudgetView: View {
             .navigationTitle("预算")
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showEdit) {
-                BudgetEditView(month: key)
+                BudgetEditView()
             }
         }
     }
@@ -91,7 +91,7 @@ struct BudgetView: View {
                 .background(Circle().fill(DSColor.cardBackground))
                 .shadow(color: .black.opacity(0.06), radius: 6, y: 2)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(DSPlainButtonStyle())
     }
 }
 
@@ -102,7 +102,7 @@ private struct BudgetContent: View {
     var onShowEdit: () -> Void
     var onOpenMonth: (String) -> Void
 
-    @Query(sort: \Budget.month, order: .reverse)
+    @Query
     private var budgets: [Budget]
 
     /// 全部流水（@Query 随数据变化自动更新；按月份内存聚合）
@@ -138,28 +138,29 @@ private struct BudgetContent: View {
         let totals = totalsByMonth[monthKey] ?? (.zero, .zero)
         return BudgetService.MonthSummary(
             monthKey: monthKey,
-            budget: budgets.first { $0.month == monthKey },
+            budget: BudgetService.permanentBudget(from: budgets),
             expense: totals.expense,
             income: totals.income,
             remainingDays: BudgetService.remainingDays(in: monthKey)
         )
     }
 
-    /// 历史预算记录（仅已设置预算的月份，真实支出 / 收入实时计算，按月份倒序）
+    /// 历史月度使用情况（每个月均按永久预算计算）。
     private var history: [BudgetService.HistoryItem] {
-        budgets
-            .filter { $0.amount > 0 }
-            .sorted { $0.month > $1.month }
+        guard let budget = BudgetService.permanentBudget(from: budgets), budget.amount > 0 else { return [] }
+        let keys = Set(totalsByMonth.keys)
+            .union([monthKey])
+            .sorted(by: >)
             .prefix(24)
-            .compactMap { budget in
-                let totals = totalsByMonth[budget.month] ?? (.zero, .zero)
-                return BudgetService.HistoryItem(
-                    monthKey: budget.month,
-                    amount: budget.amount,
-                    expense: totals.expense,
-                    income: totals.income
-                )
-            }
+        return keys.map { key in
+            let totals = totalsByMonth[key] ?? (.zero, .zero)
+            return BudgetService.HistoryItem(
+                monthKey: key,
+                amount: budget.amount,
+                expense: totals.expense,
+                income: totals.income
+            )
+        }
     }
 
     var body: some View {
@@ -187,7 +188,7 @@ private struct BudgetContent: View {
     private func heroCard(_ s: BudgetService.MonthSummary) -> some View {
         VStack(alignment: .leading, spacing: AppSpacing.xl) {
             HStack {
-                Text("\(BudgetService.monthTitle(monthKey)) · 本月预算")
+                Text("\(BudgetService.monthTitle(monthKey)) · 每月预算")
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(DSColor.heroTextSecondary)
                 Spacer()
@@ -196,7 +197,7 @@ private struct BudgetContent: View {
 
             // 预算金额 = 页面视觉焦点
             VStack(alignment: .leading, spacing: AppSpacing.xs) {
-                Text("本月预算")
+                Text("每月预算")
                     .font(.caption)
                     .foregroundStyle(DSColor.heroTextSecondary)
                 HStack(alignment: .firstTextBaseline, spacing: AppSpacing.xs) {
@@ -470,7 +471,7 @@ private struct BudgetContent: View {
         Button {
             onShowEdit()
         } label: {
-            Text("修改本月预算")
+            Text("修改每月预算")
                 .font(.headline)
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
@@ -487,7 +488,7 @@ private struct BudgetContent: View {
                         .shadow(color: DSColor.healthy.opacity(0.3), radius: 8, y: 4)
                 )
         }
-        .buttonStyle(.plain)
+        .buttonStyle(DSPlainButtonStyle())
     }
 
     // MARK: - 空状态
@@ -500,12 +501,10 @@ private struct BudgetContent: View {
                 .frame(width: 88, height: 88)
                 .background(Circle().fill(DSColor.healthy.opacity(0.12)))
 
-            Text(isCurrentMonth ? "设置你的第一个预算" : "该月暂未设置预算")
+            Text("设置你的每月预算")
                 .font(.title3.weight(.semibold))
 
-            Text(isCurrentMonth
-                 ? "给自己设一个消费目标，\n更轻松地掌控每个月的支出。"
-                 : "为该月设置一个预算，\n之后即可随时回看当月支出使用情况。")
+            Text("给自己设一个长期消费目标，\n更轻松地掌控每个月的支出。")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -514,7 +513,7 @@ private struct BudgetContent: View {
             Button {
                 onShowEdit()
             } label: {
-                Text(isCurrentMonth ? "设置本月预算" : "设置该月预算")
+                Text("设置每月预算")
                     .font(.headline)
                     .foregroundStyle(.white)
                     .padding(.horizontal, AppSpacing.xxxl)
@@ -524,7 +523,7 @@ private struct BudgetContent: View {
                             .fill(DSColor.healthy)
                     )
             }
-            .buttonStyle(.plain)
+            .buttonStyle(DSPlainButtonStyle())
             .padding(.top, AppSpacing.xs)
         }
         .frame(maxWidth: .infinity)
@@ -537,15 +536,15 @@ private struct BudgetContent: View {
         )
     }
 
-    // MARK: - 历史预算记录
+    // MARK: - 历史月度使用
 
     private var historySection: some View {
         VStack(alignment: .leading, spacing: AppSpacing.s) {
-            Text("历史预算")
+            Text("历史月度使用")
                 .font(.headline)
 
             if history.isEmpty {
-                Text("暂无预算记录，设置后会自动出现在这里。")
+                Text("暂无月度支出记录，设置预算后会在这里查看每月使用情况。")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -603,6 +602,6 @@ private struct BudgetContent: View {
             .padding(.horizontal, AppSpacing.l)
             .padding(.vertical, AppSpacing.m)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(DSPlainButtonStyle())
     }
 }
