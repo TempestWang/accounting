@@ -1,0 +1,13 @@
+# Xcode build products and derived data
+build/
+DerivedData/
+xcuserdata/
+*.xcuserstate
+
+# macOS metadata
+.DS_Store
+
+# Local tooling and workspace state
+.corepack/
+.sync_temp_dir/
+.dsh-memory

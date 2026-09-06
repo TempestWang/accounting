@@ -1,2 +1,0 @@
-Target dependency graph (1 target)
-Target 'Bookkeeping' in project 'Bookkeeping' (no dependencies)
