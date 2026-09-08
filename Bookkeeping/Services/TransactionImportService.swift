@@ -30,7 +30,8 @@ enum TransactionImportService {
             merchant: merchant,
             categoryName: categoryName,
             date: parsed.date ?? Date(),
-            note: "",
+            // 待确认页单独展示商户字段，备注先保存付款详情；最终保存时再与商户合并。
+            note: parsed.paymentInfo ?? "",
             source: source,
             screenshotData: screenshot,
             needsReview: needsReview
@@ -93,10 +94,7 @@ enum TransactionImportService {
         )
 
         // 商户与备注合并：保持「note 同时承载商户与备注」的现有数据约定
-        let mergedNote = [merchant, note]
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty }
-            .joined(separator: " · ")
+        let mergedNote = PaymentParser.composedNote(merchant: merchant, paymentInfo: note)
 
         let transaction = Transaction(
             amount: amount,
@@ -122,12 +120,12 @@ enum TransactionImportService {
     // MARK: - 转换为现有「记一笔」页面的预填数据
 
     /// 薄适配层：将待确认账单转换为现有 TransactionFormView 的 PrefillData。
-    /// 商户按现有行为放入 note（与 ImageRecognitionView 一致），
+    /// 商户和付款详情合并放入 note（与 ImageRecognitionView 一致），
     /// 分类名交给记一笔页面按名称匹配现有分类。
     static func prefillData(from pending: PendingTransaction) -> PrefillData {
         PrefillData(
             amountText: pending.amount > 0 ? "\(pending.amount)" : "",
-            note: pending.merchant,
+            note: PaymentParser.composedNote(merchant: pending.merchant, paymentInfo: pending.note),
             categoryName: pending.categoryName.isEmpty ? nil : pending.categoryName,
             date: pending.date,
             type: pending.type,

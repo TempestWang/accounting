@@ -5,6 +5,8 @@ import SwiftData
 struct ParsedPayment {
     var amount: Decimal?
     var merchant: String?
+    /// 付款页面中除商户名外的商品 / 订单等信息，用于生成备注
+    var paymentInfo: String?
     var date: Date?
     var type: TransactionType = .expense
     var categoryName: String?
@@ -12,6 +14,9 @@ struct ParsedPayment {
 
 /// 启发式解析：从 OCR 文本中提取金额 / 商户 / 日期 / 分类
 enum PaymentParser {
+
+    /// 自动识别和手动编辑共用的备注长度上限。
+    static let maxNoteLength = 50
 
     /// 商户关键词 → 分类映射（可按需扩充）
     static let categoryKeywords: [(name: String, keywords: [String])] = [
@@ -31,26 +36,32 @@ enum PaymentParser {
     /// 命中的话会把明明在花钱的付款截图误判成收入，
     /// 导致「记一笔」预填时默认选中「收入」。
     /// 只保留含义明确的收入信号，如「收入 / 工资 / 收款成功」。
-    static let incomeKeywords = ["收入", "进账", "入账", "工资", "奖金", "理财", "利息", "分红", "报销", "收款成功"]
+    static let incomeKeywords = ["收入", "进账", "工资", "奖金", "理财", "利息", "分红", "报销", "收款成功"]
 
     /// 解析主入口
     static func parse(_ text: String) -> ParsedPayment {
         var result = ParsedPayment()
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return result }
+        // 后续所有位置索引都基于同一份非空行文本，避免原始 OCR 空行造成金额与字段错配。
+        let normalizedText = normalizedLines(from: text).joined(separator: "\n")
+        guard !normalizedText.isEmpty else { return result }
 
-        let lower = trimmed.lowercased()
+        let lower = normalizedText.lowercased()
         result.type = incomeKeywords.contains(where: { lower.contains($0.lowercased()) }) ? .income : .expense
-        let amountResult = extractAmount(from: trimmed)
+        let amountResult = extractAmount(from: normalizedText)
         result.amount = amountResult?.value
         // 交易金额前的正负号比页面中的关键词更可靠：
         // 「- ¥100」是支出，「+ ¥100」是收入，即使同一张图还包含“收款方”等文字。
         if let sign = amountResult?.sign {
             result.type = sign == "+" ? .income : .expense
         }
-        result.merchant = extractMerchant(from: trimmed)
-        result.date = extractDate(from: trimmed)
-        result.categoryName = extractCategory(from: trimmed, merchant: result.merchant, type: result.type)
+        result.merchant = extractMerchant(from: normalizedText, amountLineIndex: amountResult?.lineIndex)
+        result.paymentInfo = extractPaymentInfo(
+            from: normalizedText,
+            merchant: result.merchant,
+            amountLineIndex: amountResult?.lineIndex
+        )
+        result.date = extractDate(from: normalizedText)
+        result.categoryName = extractCategory(from: normalizedText, merchant: result.merchant, type: result.type)
         return result
     }
 
@@ -72,11 +83,14 @@ enum PaymentParser {
         let hasDecimal: Bool
         let isAnchored: Bool
         let isBalance: Bool
+        let isTransactionAnchor: Bool
+        let lineIndex: Int
     }
 
     private struct AmountResult {
         let value: Decimal
         let sign: Character?
+        let lineIndex: Int
     }
 
     private static func extractAmount(from text: String) -> AmountResult? {
@@ -88,13 +102,16 @@ enum PaymentParser {
         )
 
         // 同时捕获金额前的正负号。OCR 可能把减号识别为 Unicode minus（−）。
-        let pattern = "([+\\-−])?\\s*(?:[¥￥]\\s*)?(\\d+(?:[.,]\\d+)?)"
+        // 这里只允许同行空格；`\\s` 会吞掉换行，让金额的行号落到上一行。
+        let pattern = "([+\\-−])?[ \\t]*(?:[¥￥][ \\t]*)?(\\d+(?:[.,]\\d+)?)"
         guard let regex = try? NSRegularExpression(pattern: pattern) else { return nil }
         let ns = dateStripped as NSString
         let matches = regex.matches(in: dateStripped, range: NSRange(location: 0, length: ns.length))
 
-        let anchors = ["实付", "付款金额", "支付金额", "交易金额", "总额", "金额", "合计", "¥", "￥", "应收", "本金"]
-        let balanceWords = ["余额", "剩余", "可用余额", "账户余额", "当前余额"]
+        let anchors = ["实付", "实际支付", "付款金额", "支付金额", "交易金额", "交易地金额", "总额", "金额", "合计", "¥", "￥", "应收", "本金"]
+        let transactionAnchors = ["实付", "实际支付", "付款金额", "支付金额", "交易金额", "交易地金额"]
+        let balanceWords = ["余额", "剩余", "可用余额", "账户余额", "当前余额", "可用额度"]
+        let nonTransactionWords = ["标价", "原价", "单价", "汇率", "折扣", "优惠", "立减", "积分", "手续费"]
         var candidates: [AmountCandidate] = []
 
         for m in matches {
@@ -111,7 +128,13 @@ enum PaymentParser {
             let start = max(0, m.range.location - 24)
             let window = ns.substring(with: NSRange(location: start, length: m.range.location - start))
             let isAnchored = anchors.contains(where: { window.localizedCaseInsensitiveContains($0) })
+            let isTransactionAnchor = transactionAnchors.contains {
+                line.localizedCaseInsensitiveContains($0) || window.localizedCaseInsensitiveContains($0)
+            }
             let isBalance = balanceWords.contains {
+                line.localizedCaseInsensitiveContains($0) || window.localizedCaseInsensitiveContains($0)
+            }
+            let isNonTransaction = nonTransactionWords.contains {
                 line.localizedCaseInsensitiveContains($0) || window.localizedCaseInsensitiveContains($0)
             }
 
@@ -121,7 +144,9 @@ enum PaymentParser {
                 hasSymbol: full.contains("¥") || full.contains("￥"),
                 hasDecimal: rawNum.contains(".") || rawNum.contains(","),
                 isAnchored: isAnchored,
-                isBalance: isBalance
+                isBalance: isBalance || isNonTransaction,
+                isTransactionAnchor: isTransactionAnchor,
+                lineIndex: lineIndex(of: m.range, in: ns)
             ))
         }
 
@@ -129,11 +154,21 @@ enum PaymentParser {
         let usable = candidates.contains(where: { !$0.isBalance })
             ? candidates.filter { !$0.isBalance }
             : candidates
-        // 带正负号通常就是交易金额；其后依次按关键词、货币符号、小数格式排序。
-        let best = usable.max { lhs, rhs in
-            amountScore(lhs) < amountScore(rhs)
+        // 通知页可能连续展示多张交易卡。交易金额标签最可靠，默认取最后一张卡片的金额。
+        let best: AmountCandidate?
+        if let lastTransaction = usable.filter({ $0.isTransactionAnchor }).max(by: { $0.lineIndex < $1.lineIndex }) {
+            best = lastTransaction
+        } else if let signed = usable.filter({ $0.sign != nil }).max(by: { $0.lineIndex < $1.lineIndex }) {
+            // 没有字段标签时，带正负号的金额通常是支付卡片主金额。
+            best = signed
+        } else {
+            best = usable.max { lhs, rhs in
+                let leftScore = amountScore(lhs)
+                let rightScore = amountScore(rhs)
+                return leftScore == rightScore ? lhs.lineIndex < rhs.lineIndex : leftScore < rightScore
+            }
         }
-        return best.map { AmountResult(value: $0.value, sign: $0.sign) }
+        return best.map { AmountResult(value: $0.value, sign: $0.sign, lineIndex: $0.lineIndex) }
     }
 
     private static func amountScore(_ candidate: AmountCandidate) -> Int {
@@ -141,6 +176,13 @@ enum PaymentParser {
             + (candidate.isAnchored ? 40 : 0)
             + (candidate.hasSymbol ? 20 : 0)
             + (candidate.hasDecimal ? 10 : 0)
+    }
+
+    private static func lineIndex(of range: NSRange, in text: NSString) -> Int {
+        let prefix = text.substring(with: NSRange(location: 0, length: range.location))
+        return prefix.reduce(into: 0) { count, character in
+            if character == "\n" { count += 1 }
+        }
     }
 
     // MARK: - 商户
@@ -152,18 +194,79 @@ enum PaymentParser {
         "账单", "详情", "支付宝", "微信支付", "云闪付", "收银台", "元", "商品",
     ]
 
-    private static func extractMerchant(from text: String) -> String? {
-        let lines = text.components(separatedBy: .newlines)
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty }
+    private static func extractMerchant(from text: String, amountLineIndex: Int?) -> String? {
+        let lines = normalizedLines(from: text)
 
         let dateRegex = try? NSRegularExpression(pattern: "\\d{4}[-/.]\\d{1,2}[-/.]\\d{1,2}|\\d{1,2}月\\d{1,2}日")
         let amountRegex = try? NSRegularExpression(pattern: "[¥￥]?\\s*\\d+([.,]\\d{1,2})?")
-        let fullLabelWords = ["商户全称", "收款方", "商家名称", "收款方名称", "付款方"]
+        // 先匹配较长标签，避免「收款方」截断「收款方名称」的值。
+        let fullLabelWords = [
+            "商户全称", "收款方全称", "商家名称", "收款方名称",
+            "交易商户", "交易商家", "收款方", "商户"
+        ].sorted { $0.count > $1.count }
+
+        // 付款详情页通常是“标签 + 值”结构。多张通知卡同时出现时，取最下面一张卡片的标签。
+        let labeledLines = lines.enumerated().compactMap { index, line -> (index: Int, label: String)? in
+            guard let label = fullLabelWords.first(where: { line.hasPrefix($0) }) else { return nil }
+            return (index, label)
+        }.sorted {
+            guard let amountLineIndex else { return $0.index > $1.index }
+            let leftDistance = abs($0.index - amountLineIndex)
+            let rightDistance = abs($1.index - amountLineIndex)
+            return leftDistance == rightDistance ? $0.index > $1.index : leftDistance < rightDistance
+        }
+
+        // 交易明细标题是用户希望保留的渠道 + 商户描述。
+        if let description = transactionDescription(in: lines, before: amountLineIndex) {
+            return strippedChannelSuffix(from: description)
+        }
+
+        // “账单详情”页常把商户标题直接放在金额上方，优先取该标题，避免被后续跨列值干扰。
+        if labeledLines.isEmpty, let amountLineIndex, amountLineIndex > 0 {
+            let title = lines[amountLineIndex - 1]
+            if isPlausibleMerchant(title), !title.contains("详情") {
+                return strippedChannelSuffix(from: title)
+            }
+        }
+
+        for labeledLine in labeledLines {
+            let lineIndex = labeledLine.index
+            let label = labeledLine.label
+            let line = lines[lineIndex]
+            let value = value(after: label, in: line)
+            if let value, isPlausibleMerchant(value) {
+                return strippedChannelSuffix(from: completedWrappedValue(value, after: lineIndex, in: lines))
+            }
+            if let mapped = mappedDetailValue(for: lineIndex, in: lines), isPlausibleMerchant(mapped) {
+                return strippedChannelSuffix(from: mapped)
+            }
+            if lineIndex + 1 < lines.count {
+                if let next = wrappedValue(after: lineIndex, in: lines), isPlausibleMerchant(next) {
+                    return strippedChannelSuffix(from: next)
+                }
+            }
+        }
+
+        // 微信支付列表页没有“商户全称”标签，卡片左上角的用户会独占一行，且位于金额前。
+        if let amountLineIndex {
+            let upperBound = min(amountLineIndex, lines.count)
+            if let description = lines[..<upperBound].reversed().first(where: { line in
+                channelPrefixes.contains { line.hasPrefix($0) }
+            }) {
+                return strippedChannelSuffix(from: transactionDescription(description))
+            }
+            for index in stride(from: min(amountLineIndex - 1, lines.count - 1), through: 0, by: -1) {
+                let line = lines[index]
+                if isStandaloneCardMerchant(line) {
+                    // 列表卡片标题本身就是备注描述，例如“支付宝-西安曲江新区运来湘味快餐店”。
+                    return line
+                }
+            }
+        }
 
         var candidates: [String] = []
         for line in lines {
-            if line.count > 24 { continue }
+            if line.count > 80 { continue }
             if skipMerchantPrefixes.contains(where: { line.hasPrefix($0) }) { continue }
             // 跳过支付方式行，如「招商银行信用卡(0929)」
             if line.contains("信用卡") || line.contains("储蓄卡") || line.contains("银行卡") { continue }
@@ -181,7 +284,9 @@ enum PaymentParser {
         }
 
         // 页面上出现「商户全称/收款方」等标签时，通常会同时印着完整商户名 → 取最长一行
-        let hasFullNameLabel = fullLabelWords.contains { text.contains($0) }
+        let hasFullNameLabel = lines.contains { line in
+            fullLabelWords.contains { line.hasPrefix($0) }
+        }
         let picked: String?
         if hasFullNameLabel {
             picked = candidates.max(by: { $0.count < $1.count })
@@ -192,11 +297,190 @@ enum PaymentParser {
         return strippedChannelSuffix(from: picked)
     }
 
-    /// 去掉商户名尾部附带的支付渠道名（如「xx美团」「xx饿了么」）
+    private static func normalizedLines(from text: String) -> [String] {
+        text.components(separatedBy: .newlines)
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+    }
+
+    /// OCR 可能把括号中的商户后缀拆到下一行；只在括号未闭合时合并，避免把后续页面文字拼进商户名。
+    private static func wrappedValue(after index: Int, in lines: [String]) -> String? {
+        guard index + 1 < lines.count else { return nil }
+        var result = lines[index + 1]
+        var nextIndex = index + 2
+        while nextIndex < lines.count && hasUnclosedParenthesis(in: result) {
+            result += lines[nextIndex]
+            nextIndex += 1
+        }
+        return result
+    }
+
+    private static func completedWrappedValue(_ value: String, after index: Int, in lines: [String]) -> String {
+        guard hasUnclosedParenthesis(in: value) else { return value }
+        var result = value
+        var nextIndex = index + 1
+        while nextIndex < lines.count && hasUnclosedParenthesis(in: result) {
+            result += lines[nextIndex]
+            nextIndex += 1
+        }
+        return result
+    }
+
+    private static func hasUnclosedParenthesis(in value: String) -> Bool {
+        let opening = value.reduce(into: 0) { count, character in
+            if character == "(" || character == "（" { count += 1 }
+            if character == ")" || character == "）" { count -= 1 }
+        }
+        return opening > 0
+    }
+
+    private static func value(after label: String, in line: String) -> String? {
+        guard let range = line.range(of: label) else { return nil }
+        let value = line[range.upperBound...]
+            .trimmingCharacters(in: CharacterSet.whitespacesAndNewlines.union(CharacterSet(charactersIn: ":：-")))
+        return value.isEmpty ? nil : value
+    }
+
+    private static func isPlausibleMerchant(_ value: String) -> Bool {
+        let clean = strippedChannelSuffix(from: value.trimmingCharacters(in: .whitespacesAndNewlines))
+        guard !clean.isEmpty, clean.count <= 80 else { return false }
+        if skipMerchantPrefixes.contains(where: { clean.hasPrefix($0) }) { return false }
+        if clean.contains("信用卡") || clean.contains("储蓄卡") || clean.contains("银行卡") { return false }
+        let compact = clean.replacingOccurrences(of: " ", with: "")
+        if compact.allSatisfy({ $0.isNumber || $0 == "." || $0 == "," || $0 == "+" || $0 == "-" || $0 == "−" || $0 == "¥" || $0 == "￥" }) {
+            return false
+        }
+        return true
+    }
+
+    private static func isStandaloneCardMerchant(_ value: String) -> Bool {
+        let clean = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        let normalized = strippedChannelSuffix(from: clean)
+        guard isPlausibleMerchant(clean), normalized.count >= 2 else { return false }
+        if normalized.contains(":") || normalized.contains("：") { return false }
+        if normalized.contains("支付") || normalized.contains("付款") || normalized.contains("收款") { return false }
+        if normalized.contains("交易") || normalized.contains("账单") || normalized.contains("详情") { return false }
+        if normalized.contains("服务") || normalized.contains("通知") || normalized.contains("状态") { return false }
+        if normalized.contains("入账") || normalized.contains("成功") || normalized.contains("失败") || normalized.contains("进行中") { return false }
+        let compact = normalized.replacingOccurrences(of: " ", with: "")
+        return !compact.allSatisfy { $0.isNumber || $0 == "." || $0 == "," || $0 == "-" || $0 == "¥" || $0 == "￥" }
+    }
+
+    // MARK: - 付款详情 / 备注
+
+    private static let paymentInfoLabels = ["商品说明", "商品", "订单说明", "交易说明", "交易内容", "商品名称"]
+        .sorted { $0.count > $1.count }
+
+    private static func extractPaymentInfo(
+        from text: String,
+        merchant: String?,
+        amountLineIndex: Int?
+    ) -> String? {
+        let lines = normalizedLines(from: text)
+        let labelEntries = lines.enumerated().compactMap { index, line -> (index: Int, label: String)? in
+            guard let label = paymentInfoLabels.first(where: { line == $0 || line.hasPrefix($0) }) else { return nil }
+            return (index, label)
+        }
+        let orderedEntries = labelEntries.sorted {
+            guard let amountLineIndex else { return $0.index > $1.index }
+            let leftDistance = abs($0.index - amountLineIndex)
+            let rightDistance = abs($1.index - amountLineIndex)
+            return leftDistance == rightDistance ? $0.index > $1.index : leftDistance < rightDistance
+        }
+        for entry in orderedEntries {
+            let line = lines[entry.index]
+            if let inline = value(after: entry.label, in: line), isUsefulPaymentInfo(inline, merchant: merchant) {
+                return inline
+            }
+
+            // 标签和值是两列时，以支付时间/交易时间对应的日期作为值区块起点，按列偏移取商品值。
+            if let mapped = mappedDetailValue(for: entry.index, in: lines),
+               isUsefulPaymentInfo(mapped, merchant: merchant) {
+                return mapped
+            }
+
+            // 兼容标签和值交错、或标签后紧跟值的 OCR 顺序。
+            if entry.index + 1 < lines.count {
+                let next = lines[entry.index + 1]
+                if isUsefulPaymentInfo(next, merchant: merchant),
+                   !paymentInfoLabels.contains(where: { next == $0 || next.hasPrefix($0) }) {
+                    return next
+                }
+            }
+        }
+
+        // 交易明细没有“商品”字段，卡片标题本身就是用户希望保留的备注描述。
+        if let description = transactionDescription(in: lines, before: amountLineIndex) {
+            return description
+        }
+        return nil
+    }
+
+    private static func mappedDetailValue(for labelIndex: Int, in lines: [String]) -> String? {
+        guard let timeLabelIndex = lines[...labelIndex].lastIndex(where: {
+            $0 == "支付时间" || $0 == "交易时间" || $0.hasPrefix("支付时间") || $0.hasPrefix("交易时间")
+        }) else { return nil }
+
+        guard let dateIndex = lines.indices.first(where: { $0 > timeLabelIndex && isDateLike(lines[$0]) }) else {
+            return nil
+        }
+        let candidateIndex = dateIndex + (labelIndex - timeLabelIndex)
+        guard lines.indices.contains(candidateIndex), candidateIndex != dateIndex else { return nil }
+        return lines[candidateIndex]
+    }
+
+    private static func isDateLike(_ value: String) -> Bool {
+        let pattern = "\\d{4}[-/.年]\\d{1,2}[-/.月]\\d{1,2}日?"
+        guard let regex = try? NSRegularExpression(pattern: pattern) else { return false }
+        let ns = value as NSString
+        return regex.firstMatch(in: value, range: NSRange(location: 0, length: ns.length)) != nil
+    }
+
+    private static func transactionDescription(in lines: [String], before amountLineIndex: Int?) -> String? {
+        let upperBound = min(amountLineIndex ?? lines.count, lines.count)
+        guard let index = lines[..<upperBound].lastIndex(where: { line in
+            channelPrefixes.contains { line.hasPrefix($0) }
+        }) else { return nil }
+        var title = lines[index]
+        if hasUnclosedParenthesis(in: title), index + 1 < lines.count {
+            title += lines[index + 1]
+        }
+        return transactionDescription(title)
+    }
+
+    private static func transactionDescription(_ value: String) -> String {
+        let clean = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        let parenthesisIndexes = [clean.firstIndex(of: "（"), clean.firstIndex(of: "(")].compactMap { $0 }
+        guard let first = parenthesisIndexes.min() else { return clean }
+        return String(clean[..<first]).trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private static func isUsefulPaymentInfo(_ value: String, merchant: String?) -> Bool {
+        let clean = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !clean.isEmpty, clean.count <= 120 else { return false }
+        if clean == merchant { return false }
+        if clean.contains("交易时间") || clean.contains("支付方式") || clean.contains("商户全称") { return false }
+        return true
+    }
+
+    /// 统一的备注格式：有商品 / 订单信息时优先使用商品，否则使用交易标题或商户名。
+    static func composedNote(merchant: String?, paymentInfo: String?) -> String {
+        let cleanMerchant = merchant?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let cleanPaymentInfo = paymentInfo?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let selected = cleanPaymentInfo.isEmpty ? cleanMerchant : cleanPaymentInfo
+        return String(selected.prefix(maxNoteLength))
+    }
+
+    /// 去掉商户名附带的支付渠道前后缀（如「支付宝-xx」「xx美团」）。
+    private static let channelPrefixes = ["支付宝-", "支付宝：", "微信支付-", "微信支付：", "拼多多支付-", "拼多多支付："]
     private static let channelSuffixes = ["美团", "饿了么", "支付宝", "微信支付", "微信"]
 
     private static func strippedChannelSuffix(from merchant: String) -> String {
         var result = merchant
+        for prefix in channelPrefixes where result.hasPrefix(prefix) {
+            result = String(result.dropFirst(prefix.count))
+            break
+        }
         for suffix in channelSuffixes {
             // 避免把「美团外卖」误删成「外卖」
             guard result.count - suffix.count >= 3, result.hasSuffix(suffix) else { continue }

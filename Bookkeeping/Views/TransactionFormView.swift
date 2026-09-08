@@ -36,7 +36,7 @@ struct TransactionFormView: View {
         _type = State(initialValue: preselectCategory?.type ?? editing?.type ?? prefill?.type ?? .expense)
         _amountText = State(initialValue: prefill?.amountText ?? (editing.map { "\($0.amount)" } ?? ""))
         _date = State(initialValue: prefill?.date ?? editing?.date ?? Date())
-        _note = State(initialValue: prefill?.note ?? editing?.note ?? "")
+        _note = State(initialValue: String((prefill?.note ?? editing?.note ?? "").prefix(PaymentParser.maxNoteLength)))
         _selectedCategory = State(initialValue: nil)
     }
 
@@ -225,6 +225,10 @@ struct TransactionFormView: View {
                 TextField("备注（如商户名）", text: $note)
                     .multilineTextAlignment(.trailing)
                     .foregroundStyle(.primary)
+                    .onChange(of: note) { _, newValue in
+                        let limited = String(newValue.prefix(PaymentParser.maxNoteLength))
+                        if limited != newValue { note = limited }
+                    }
             }
             .padding(.vertical, AppSpacing.m)
         }

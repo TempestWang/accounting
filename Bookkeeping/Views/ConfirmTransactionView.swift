@@ -104,7 +104,7 @@ struct ConfirmTransactionView: View {
         merchant = pending.merchant
         categoryName = pending.categoryName
         date = pending.date
-        note = pending.note
+        note = String(pending.note.prefix(PaymentParser.maxNoteLength))
 
         // 根据日期推断快捷模式
         let cal = Calendar.current
@@ -291,6 +291,10 @@ struct ConfirmTransactionView: View {
             fieldRow(label: "备注", icon: "text.alignleft") {
                 TextField("备注（选填）", text: $note)
                     .multilineTextAlignment(.trailing)
+                    .onChange(of: note) { _, newValue in
+                        let limited = String(newValue.prefix(PaymentParser.maxNoteLength))
+                        if limited != newValue { note = limited }
+                    }
             }
         }
         .padding(.horizontal, AppSpacing.l)

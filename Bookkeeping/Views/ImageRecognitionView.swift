@@ -114,7 +114,7 @@ struct ImageRecognitionView: View {
         let p = parsed
         return PrefillData(
             amountText: p?.amount.map { "\($0)" } ?? "",
-            note: p?.merchant ?? "",
+            note: PaymentParser.composedNote(merchant: p?.merchant, paymentInfo: p?.paymentInfo),
             categoryName: p?.categoryName,
             date: p?.date,
             type: p?.type ?? .expense,
