@@ -4,7 +4,6 @@ import SwiftData
 /// 记账分类
 @Model
 final class Category {
-    // CloudKit 兼容要求：所有属性必须为可选或带默认值，且不能用 @Attribute(.unique)
     var id: UUID = UUID()
     var name: String = ""
     /// SF Symbol 名称
@@ -12,6 +11,13 @@ final class Category {
     var type: TransactionType = TransactionType.expense
     var sortOrder: Int = 0
     var isBuiltin: Bool = false
+    /// 内置分类删除标记：保留墓碑，避免启动播种或备份恢复后重新出现。
+    /// `deletionMarker` 避免与 SwiftData 的内部删除状态重名。
+    var deletionMarker: Bool = false
+    var isDeleted: Bool {
+        get { deletionMarker }
+        set { deletionMarker = newValue }
+    }
 
     @Relationship(deleteRule: .nullify, inverse: \Transaction.category)
     var transactions: [Transaction] = []
@@ -22,7 +28,8 @@ final class Category {
         icon: String,
         type: TransactionType,
         sortOrder: Int,
-        isBuiltin: Bool = false
+        isBuiltin: Bool = false,
+        isDeleted: Bool = false
     ) {
         self.id = id
         self.name = name
@@ -30,5 +37,6 @@ final class Category {
         self.type = type
         self.sortOrder = sortOrder
         self.isBuiltin = isBuiltin
+        self.isDeleted = isDeleted
     }
 }

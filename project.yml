@@ -19,7 +19,8 @@ targets:
       - Bookkeeping
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.example.Bookkeeping
+        PRODUCT_BUNDLE_IDENTIFIER: com.tempestwang.Bookkeeping
+        INFOPLIST_FILE: BookkeepingInfo.plist
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_CFBundleDisplayName: "账本"
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES

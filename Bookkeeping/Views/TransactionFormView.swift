@@ -238,15 +238,15 @@ struct TransactionFormView: View {
     // MARK: - 逻辑
 
     private func categoriesFor(_ type: TransactionType) -> [Category] {
-        categories.filter { $0.type == type }
+        categories.filter { $0.type == type && !$0.isDeleted }
     }
 
     private func resolveInitialCategory() {
         guard selectedCategory == nil else { return }
         let items = categoriesFor(type)
-        if let preselectCategory, preselectCategory.type == type {
+        if let preselectCategory, preselectCategory.type == type, !preselectCategory.isDeleted {
             selectedCategory = preselectCategory
-        } else if let editing, let cat = editing.category, cat.type == type {
+        } else if let editing, let cat = editing.category, cat.type == type, !cat.isDeleted {
             selectedCategory = cat
         } else if let name = prefill?.categoryName,
                   let match = items.first(where: { $0.name == name }) {
@@ -292,7 +292,7 @@ struct TransactionFormView: View {
                 )
                 context.insert(tx)
             }
-            try context.save()
+            try BackupManager.save(context: context)
             dismiss()
         } catch {
             errorText = "保存失败，请重试。"

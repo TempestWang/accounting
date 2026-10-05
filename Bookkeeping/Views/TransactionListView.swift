@@ -186,7 +186,7 @@ struct TransactionListView: View {
             context.delete(items[index])
         }
         do {
-            try context.save()
+            try BackupManager.save(context: context)
         } catch {
             errorText = "删除失败，请重试。"
             showError = true

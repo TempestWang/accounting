@@ -114,7 +114,7 @@ struct HomeView: View {
     // MARK: - 快捷记账
 
     private var quickRecordSection: some View {
-        let expenseCategories = categories.filter { $0.type == .expense }
+        let expenseCategories = categories.filter { $0.type == .expense && !$0.isDeleted }
         return VStack(alignment: .leading, spacing: DSpace.md) {
             Text("记一笔")
                 .font(Typography.headline)

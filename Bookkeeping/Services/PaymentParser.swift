@@ -67,7 +67,7 @@ enum PaymentParser {
 
     /// 在数据库中查找匹配分类；找不到则回退到「其他」
     static func findCategory(named name: String?, type: TransactionType, in context: ModelContext) -> Category? {
-        let all = (try? context.fetch(FetchDescriptor<Category>())) ?? []
+        let all = ((try? context.fetch(FetchDescriptor<Category>())) ?? []).filter { !$0.isDeleted }
         if let name, !name.isEmpty, let match = all.first(where: { $0.name == name && $0.type == type }) {
             return match
         }

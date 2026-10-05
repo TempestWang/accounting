@@ -8,7 +8,6 @@ import SwiftData
 /// 金额为空 / <= 0 时禁止保存为正式账单。
 @Model
 final class PendingTransaction {
-    // CloudKit 兼容要求：所有属性必须为可选或带默认值，且不能用 @Attribute(.unique)
     var id: UUID = UUID()
     /// 金额（识别结果，用户可修改）
     var amount: Decimal = 0

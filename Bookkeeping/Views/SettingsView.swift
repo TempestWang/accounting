@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftData
 import UniformTypeIdentifiers
 
-/// 设置页：分类管理、预算、导出 CSV、JSON 备份、自动化记账教程
+/// 设置页：分类管理、预算、导出 CSV、账本 JSON、自动化记账教程
 /// UI优化：参考设计稿添加紫色渐变头部
 struct SettingsView: View {
     @Environment(\.modelContext) private var context
@@ -232,6 +232,10 @@ struct SettingsView: View {
 
     // MARK: - 关于
 
+    private var dataStorageDescription: String {
+        "账本 JSON 保存在文件 App 的“我的 iPhone → 账本 → bookkeeping/bookkeeping.json”，每次保存账单后自动更新；同步此文件即可备份或迁移。"
+    }
+
     private var aboutSection: some View {
         VStack(spacing: 0) {
             settingsRow(
@@ -246,7 +250,7 @@ struct SettingsView: View {
             )
             settingsDivider
             VStack(alignment: .leading, spacing: 4) {
-                Text("数据仅保存在本机，建议定期导出 JSON 备份，以便换机或恢复数据。")
+                Text(dataStorageDescription)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -297,13 +301,13 @@ struct SettingsView: View {
             .padding(.leading, 64)
     }
 
-    // MARK: - 导出文件（进入页面时生成一次，避免每次刷新重写）
+    // MARK: - 导出文件（进入页面时生成一次；文件本身会在每次保存后更新）
 
     private func generateExportFiles() {
         if csvFile == nil, let url = try? CSVExporter.writeTempCSV(from: transactions) {
             csvFile = CSVFile(url: url)
         }
-        if backupFile == nil, let url = try? BackupManager.writeTempJSON(from: context) {
+        if backupFile == nil, let url = try? BackupManager.writeBookkeepingJSON(from: context) {
             backupFile = BackupFile(url: url)
         }
     }

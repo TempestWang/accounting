@@ -4,7 +4,6 @@ import SwiftData
 /// 一条记账流水
 @Model
 final class Transaction {
-    // CloudKit 兼容要求：所有属性必须为可选或带默认值，且不能用 @Attribute(.unique)
     // （UUID 由 init 生成，唯一性由构造保证，无需数据库约束）
     var id: UUID = UUID()
     var amount: Decimal = 0

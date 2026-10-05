@@ -218,7 +218,7 @@ struct BudgetEditView: View {
             for budget in budgets where budget !== permanent {
                 context.delete(budget)
             }
-            try context.save()
+            try BackupManager.save(context: context)
             dismiss()
         } catch {
             errorText = "保存失败，请重试。"
@@ -231,7 +231,7 @@ struct BudgetEditView: View {
             context.delete(budget)
         }
         do {
-            try context.save()
+            try BackupManager.save(context: context)
             dismiss()
         } catch {
             errorText = "删除失败，请重试。"

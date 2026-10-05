@@ -459,7 +459,7 @@ private struct CategoryPickerSheet: View {
     private var categories: [Category]
 
     private var items: [Category] {
-        categories.filter { $0.type == type }
+        categories.filter { $0.type == type && !$0.isDeleted }
     }
 
     var body: some View {

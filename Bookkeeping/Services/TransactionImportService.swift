@@ -106,7 +106,7 @@ enum TransactionImportService {
         )
         context.insert(transaction)
         context.delete(pending)
-        try context.save()
+        try BackupManager.save(context: context)
         return transaction
     }
 

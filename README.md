@@ -12,7 +12,7 @@
 - **预算**：设置每月支出预算，进度条展示，超支红色提醒
 - **CSV 导出**：一键分享全部流水
 - **JSON 备份/恢复**：完整备份分类 / 流水 / 预算（保留金额精度），可导入恢复，防止换机或误删丢失数据
-- **iCloud 云同步**：登录 iCloud 后账目自动跨设备同步（默认关闭；需要付费开发者账号，免费账号不可用）
+- **本地 JSON 镜像**：完整账本自动写入 `Documents/bookkeeping/bookkeeping.json`，只需同步这一份文件
 - **主题系统**：「我的」页 → 主题设置，Apple 设置风格大圆角卡片 + 实时预览 + 毛玻璃质感，点击立即切换，全 App 页面即时换肤，选择持久化（重启保留）
 - **自动化记账**（核心）：
   1. **双敲背面全自动**：敲两下截屏 → 敲三下快捷指令自动记账
@@ -86,7 +86,7 @@ xcodegen
 2. 勾选 **Automatically manage signing**
 3. **Team** 选择你的 Apple ID（第一次请先登录：Xcode → Settings → Accounts → 添加 Apple ID）
 4. 把 **Bundle Identifier** 从 `com.example.Bookkeeping` 改成你自己的，如 `com.你的昵称.zhangben`（免费账号要求每个设备上的 Bundle ID 唯一）
-5. 工程**默认未启用** iCloud 能力，免费账号无需任何额外设置，直接 ⌘R 即可真机运行
+5. 工程不依赖额外签名能力；免费个人签名、越狱安装都可以使用本地账本文件
 
 ### 4. 运行
 
@@ -95,7 +95,7 @@ xcodegen
   1. iPhone 用数据线连 Mac，解锁并点「信任此电脑」
   2. Xcode 顶栏选择你的 iPhone
   3. 按 ⌘R。首次会提示在「设置 → 通用 → VPN与设备管理」里信任你的开发者证书
-  4. ⚠️ 免费签名有效期 **7 天**，过期后在手机上打不开 App，需重新连接 Mac 运行一次
+  4. 免费个人签名有效期 **7 天**；到期后重新签名安装即可
 
 ### 5. 打包成 IPA（上架 / 分发需要付费）
 
@@ -114,7 +114,7 @@ xcodegen
 | 手机连不上 Xcode | 解锁 iPhone、点「信任此电脑」、换一根数据线，或重启 Xcode |
 | 模拟器/真机系统版本过低 | 设备 iOS 需 ≥ 17.0 |
 | 更新代码后启动闪退 | 开发期 Schema 变更导致迁移失败：删除 App 重装（先「导出备份（JSON）」） |
-| 首次启动后设置页显示「iCloud 同步：未开启」 | 正常现象，免费账号不支持云同步，数据仅在本机 |
+| JSON 文件没有更新 | 确认 App 有写入权限，并在“文件”App 中查看“我的 iPhone → 账本 → bookkeeping/bookkeeping.json” |
 
 ## 快捷指令搭建教程（自动化记账）
 
@@ -159,25 +159,15 @@ xcodegen
 
 你可能期望「敲一下就自动读取当前屏幕直接记账」。**iOS 出于隐私限制，不允许任何 App 或快捷指令直接截取其他 App 的屏幕内容**，快捷指令里也没有「截取当前屏幕」的动作（Android 可以，iOS 不行）。因此本方案用「敲两下截屏 + 敲三下记账」的两步方案，已经是 iOS 上最接近全自动的做法。如果你发现某个快捷指令版本里存在「截屏」动作，可以在快捷指令里把它放在「获取最近的照片」之前，就能一步完成。
 
-## iCloud 云同步（可选，默认关闭）
+## 本地 JSON 镜像与手动同步
 
-App 内置了 SwiftData 的 CloudKit 同步代码，但**默认关闭**：免费开发者账号不支持 iCloud 能力，开启会导致真机签名失败，因此本项目开箱即用时不带 iCloud 能力。
+App 使用 SwiftData 保存运行中的账本，同时维护一份完整 JSON 镜像：
 
-**当前状态（免费账号）**：纯本地存储，真机 / 模拟器直接运行，设置页显示「iCloud 同步：未开启」。数据只保存在本机，用「导出备份（JSON）/ 导入备份（JSON）」即可完成迁移。
+`Documents/bookkeeping/bookkeeping.json`
 
-**将来购买付费开发者账号后，三步开启**：
+首次启动以及每次正式保存流水、分类或预算后，App 都会创建 `bookkeeping` 文件夹并以原子方式更新 `bookkeeping.json`。开启文件共享后，可以在 iPhone“文件”App 的“我的 iPhone → 账本”中看到它，也可以通过 Finder、AirDrop 或你自己的同步工具复制这一份文件。
 
-1. 把 iCloud 能力挂回工程：在 `Signing & Capabilities` 添加 iCloud → 勾选 CloudKit（或在 pbxproj / project.yml 的 target 配置中恢复 `CODE_SIGN_ENTITLEMENTS = Bookkeeping/Bookkeeping.entitlements`，文件已就绪）；
-2. `Build Settings` → `SWIFT_ACTIVE_COMPILATION_CONDITIONS` 增加 `ENABLE_ICLOUD_SYNC`；
-3. iPhone 登录 iCloud 后重新运行，现有数据会自动上传并跨设备同步。
-
-**注意事项**：
-
-1. **schema 上线即定型**：启用同步后首次运行会在 CloudKit 开发环境自动建表；若将来上架，需在 [CloudKit Dashboard](https://icloud.developer.apple.com) 把 schema **Deploy 到 Production**。模型一旦同步上线，**新增字段可自动迁移，重命名/删除字段会导致同步失败**（个人使用影响不大，改完重装即可）。
-2. **多设备播种**：两台设备同时全新安装且离线使用时，内置分类联网合并后可能出现重复（已按名称去重播种，仍存在极端并发窗口），可在「分类管理」手动删除。
-3. **数据安全**：iCloud 数据由苹果托管加密传输，App 本身依然没有任何自有网络请求；未开启同步时数据只在本机沙盒。
-4. **删除同步**：在任一设备删除流水/分类后，其他设备同步后也会删除（CloudKit 墓碑机制）。
-5. **模型已 CloudKit 兼容**：数据模型（属性全部可选/带默认值、无 unique 约束）按 CloudKit 要求设计，将来启用同步时无需再改模型。
+设置页的“导出备份（JSON）”分享的是这份持久文件；“导入备份（JSON）”会按 ID 幂等合并分类、流水和预算。导入不会删除本机已有记录，也不会覆盖已有记录的修改；如果两台设备都产生了新记录，请先保留两边文件，再决定导入顺序。
 
 ## 常见问题
 
@@ -185,7 +175,7 @@ App 内置了 SwiftData 的 CloudKit 同步代码，但**默认关闭**：免费
 A：分类关键词在 `Bookkeeping/Services/PaymentParser.swift` 的 `categoryKeywords` 里，可自行增删；解析是启发式的，误差可通过明细里左滑删除或点击编辑修正。
 
 **Q：数据存在哪里？**
-A：全部存在本机 App 沙盒（SwiftData），不上传任何自有服务器。云同步默认关闭（免费账号不可用）；若将来启用，数据会通过苹果 CloudKit 自动同步到同一 Apple ID 的其他设备。建议定期在设置里「导出备份（JSON）」；换机或重装后通过「导入备份（JSON）」恢复。
+A：运行中的数据保存在本机 SwiftData；完整镜像位于 `Documents/bookkeeping/bookkeeping.json`。在“文件”App 中复制或同步该文件，换机或重装后通过设置里的「导入备份（JSON）」恢复。
 
 **Q：更新版本后启动闪退？**
 A：开发期数据模型（Schema）变更偶尔会导致 SwiftData 迁移失败。个人使用建议：每次更新前先在设置里「导出备份（JSON）」；若更新后闪退，删除 App 重装，再「导入备份」恢复即可。
@@ -195,7 +185,7 @@ A：可以，但需要付费开发者账号并按 App Store 审核规范补充�
 
 ## 技术栈
 
-SwiftUI · SwiftData（iOS 17+）· Swift Charts · Vision OCR · App Intents · CloudKit 云同步（可选，默认关闭）
+SwiftUI · SwiftData（iOS 17+）· Swift Charts · Vision OCR · App Intents
 
 ---
 
@@ -256,4 +246,3 @@ xcodebuild test -project Bookkeeping.xcodeproj \
   -scheme ThemeUITests -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
   -only-testing:BookkeepingUITests/ThemeUITests
 ```
-

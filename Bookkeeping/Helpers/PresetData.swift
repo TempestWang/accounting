@@ -27,8 +27,6 @@ enum PresetData {
     ]
 
     /// 按名称+类型逐项补齐内置分类（幂等）。
-    /// 相比"count == 0 才播种"：iCloud 多设备场景下，云端可能已同步来部分分类，
-    /// 逐项检查可避免重复插入，并能在同步完成后自动补齐缺失的内置分类。
     @MainActor
     static func seedIfNeeded(context: ModelContext) {
         let existing = (try? context.fetch(FetchDescriptor<Category>())) ?? []
@@ -47,7 +45,7 @@ enum PresetData {
             }
         }
         if changed {
-            try? context.save()
+            try? BackupManager.save(context: context)
         }
     }
 }

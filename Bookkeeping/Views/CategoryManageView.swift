@@ -1,11 +1,12 @@
 import SwiftUI
 import SwiftData
 
-/// 分类管理：内置分类不可删，自定义分类可增删改
+/// 分类管理：内置分类可删除，自定义分类可增删改
 /// UI优化：根据设计稿调整列表样式
 struct CategoryManageView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
+    @Environment(\.editMode) private var editMode
 
     @Query(sort: \Category.sortOrder)
     private var categories: [Category]
@@ -43,6 +44,9 @@ struct CategoryManageView: View {
                     }
                     .accessibilityLabel("添加分类")
                 }
+                ToolbarItem(placement: .automatic) {
+                    EditButton()
+                }
             }
             .sheet(isPresented: $showAdd) {
                 CategoryEditView()
@@ -67,15 +71,33 @@ struct CategoryManageView: View {
     }
 
     private func categoryList(type: TransactionType) -> some View {
-        let items = categories.filter { $0.type == type }
+        let items = categories.filter { $0.type == type && !$0.isDeleted }
         return ForEach(items) { cat in
             row(cat)
                 .contentShape(Rectangle())
-                .onTapGesture { editing = cat }
-                .deleteDisabled(cat.isBuiltin)
+                .onTapGesture {
+                    guard editMode?.wrappedValue != .active else { return }
+                    editing = cat
+                }
         }
         .onDelete { offsets in
             requestDelete(items: items, at: offsets)
+        }
+        .onMove { offsets, destination in
+            reorder(items: items, from: offsets, to: destination)
+        }
+    }
+
+    private func reorder(items: [Category], from offsets: IndexSet, to destination: Int) {
+        var reordered = items
+        reordered.move(fromOffsets: offsets, toOffset: destination)
+        for (index, category) in reordered.enumerated() {
+            category.sortOrder = index
+        }
+        do {
+            try BackupManager.save(context: context)
+        } catch {
+            errorMessage = "排序保存失败，请重试。"
         }
     }
 
@@ -104,7 +126,6 @@ struct CategoryManageView: View {
     private func requestDelete(items: [Category], at offsets: IndexSet) {
         guard let index = offsets.first else { return }
         let cat = items[index]
-        guard !cat.isBuiltin else { return }
         // 统计该分类下的流水数，用于删除确认提示
         // Predicate 宏要求等号两侧类型完全一致：$0.category?.id 是 UUID?，
         // 因此目标 id 也必须以 UUID? 捕获（而非非可选 UUID）
@@ -119,9 +140,16 @@ struct CategoryManageView: View {
     private func performDelete() {
         guard let cat = confirmDelete else { return }
         confirmDelete = nil
-        context.delete(cat)
+        if cat.isBuiltin {
+            for transaction in cat.transactions {
+                transaction.category = nil
+            }
+            cat.isDeleted = true
+        } else {
+            context.delete(cat)
+        }
         do {
-            try context.save()
+            try BackupManager.save(context: context)
         } catch {
             errorMessage = "删除失败，请重试。"
         }
@@ -283,7 +311,7 @@ struct CategoryEditView: View {
                     .map { $0.map(\.sortOrder).max() ?? 0 } ?? 0
                 context.insert(Category(name: trimmed, icon: icon, type: type, sortOrder: maxOrder + 1))
             }
-            try context.save()
+            try BackupManager.save(context: context)
             dismiss()
         } catch {
             errorText = "保存失败，请重试。"

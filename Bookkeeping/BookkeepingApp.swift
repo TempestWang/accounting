@@ -21,6 +21,8 @@ struct BookkeepingApp: App {
                     // 首次启动播种内置分类
                     let context = AppModel.container.mainContext
                     PresetData.seedIfNeeded(context: context)
+                    // 即使没有新增数据，也确保本地账本文件已经存在。
+                    try? BackupManager.writeBookkeepingJSON(from: context)
                 }
         }
     }
@@ -32,18 +34,9 @@ enum AppModel {
     static let container: ModelContainer = {
         let schema = Schema([Transaction.self, Category.self, Budget.self, PendingTransaction.self])
         do {
-            #if ENABLE_ICLOUD_SYNC
-            // 启用 iCloud 云同步：需要付费开发者账号 + iCloud 能力 + 登录 iCloud，
-            // 开启方法见 README「iCloud 云同步」章节。
-            let config = ModelConfiguration(schema: schema, cloudKitDatabase: .automatic)
-            #else
-            // 默认：纯本地存储（免费开发者账号可直接真机运行，无需任何 iCloud 配置）
             let config = ModelConfiguration(schema: schema)
-            #endif
             return try ModelContainer(for: schema, configurations: [config])
         } catch {
-            // 仅当启用 ENABLE_ICLOUD_SYNC 且 iCloud 不可用（未登录/未配置能力）时才会走到这里：
-            // 自动降级为纯本地存储，保证 App 可用
             let localConfig = ModelConfiguration(schema: schema)
             do {
                 return try ModelContainer(for: schema, configurations: [localConfig])
